@@ -1,0 +1,29 @@
+{
+  "experiment": "pilot1",
+  "description": "Pilot: Qwen3-4B (local llama.cpp) vs gpt-oss-120b user simulator, retail tasks 0-4 x 3 trials. Run name reproduces the existing pilot1_qwen4b_gptoss120b run so it resumes.",
+  "domain": "retail",
+  "tau2_dir": "D:/Programming/Reaserch/tau2-bench",
+  "agent": {
+    "name": "qwen4b",
+    "llm": "openai/qwen3-4b",
+    "llm_args": {"api_base": "http://127.0.0.1:8080/v1", "api_key": "local", "temperature": 0.0}
+  },
+  "simulators": [
+    {
+      "name": "gptoss120b",
+      "llm": "groq/openai/gpt-oss-120b",
+      "llm_args": {"temperature": 0.0},
+      "daily_token_budget": 200000,
+      "tokens_per_task_estimate": 9000,
+      "daily_request_budget": 1000,
+      "requests_per_task_estimate": 20,
+      "notes": "Groq free plan: 30 RPM, 1K RPD, 8K TPM, 200K TPD. Measured 6-9K tokens/simulation."
+    }
+  ],
+  "tasks": {"ids": ["0", "1", "2", "3", "4"]},
+  "num_trials": 3,
+  "seed": 300,
+  "max_concurrency": 1,
+  "run_name_template": "{experiment}_{agent}_{user}",
+  "extra_tau2_args": []
+}

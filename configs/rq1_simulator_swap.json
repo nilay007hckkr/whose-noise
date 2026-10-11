@@ -1,0 +1,49 @@
+{
+  "experiment": "rq1",
+  "description": "RQ1 simulator swap: same agent (Qwen3-4B, temp 0), same tasks and seed, different user-simulator LLMs. Uses the 29 judge-free tasks of the 40-task retail test split (PREREGISTRATION section 4; tasks with NL assertions are excluded); train is kept for pilots and Hinglish prompt development.",
+  "domain": "retail",
+  "tau2_dir": "D:/Programming/Reaserch/tau2-bench",
+  "agent": {
+    "name": "qwen4b",
+    "llm": "openai/qwen3-4b",
+    "llm_args": {"api_base": "http://127.0.0.1:8080/v1", "api_key": "local", "temperature": 0.0}
+  },
+  "simulators": [
+    {
+      "name": "gptoss120b",
+      "llm": "groq/openai/gpt-oss-120b",
+      "llm_args": {"temperature": 0.0},
+      "daily_token_budget": 200000,
+      "tokens_per_task_estimate": 9000,
+      "daily_request_budget": 1000,
+      "requests_per_task_estimate": 20,
+      "notes": "Groq free plan: 30 RPM, 1K RPD, 8K TPM, 200K TPD. Measured 6-9K tokens/simulation."
+    },
+    {
+      "name": "qwen3.8-27b",
+      "llm": "groq/qwen/qwen3.8-27b",
+      "llm_args": {"temperature": 0.0},
+      "daily_token_budget": 200000,
+      "tokens_per_task_estimate": 12000,
+      "daily_request_budget": 1000,
+      "requests_per_task_estimate": 20,
+      "notes": "Groq free plan (verify limits in the Groq console). Token estimate is UNMEASURED and padded for reasoning output; replace it after a 1-task smoke run."
+    },
+    {
+      "name": "gemini3.8flash",
+      "llm": "gemini/gemini-3.8-flash",
+      "llm_args": {"temperature": 0.0},
+      "daily_token_budget": null,
+      "tokens_per_task_estimate": 9000,
+      "daily_request_budget": null,
+      "requests_per_task_estimate": 20,
+      "enabled": false,
+      "notes": "Optional. Free tier is ~5 RPM, so expect slow runs and rate-limit retries; fill in the daily budgets from the Gemini console before enabling."
+    }
+  ],
+  "tasks": {"split": "test", "exclude_nl_assertions": true},
+  "num_trials": 3,
+  "seed": 300,
+  "max_concurrency": 1,
+  "extra_tau2_args": []
+}
