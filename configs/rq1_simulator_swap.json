@@ -12,7 +12,7 @@
     {
       "name": "gptoss120b",
       "llm": "groq/openai/gpt-oss-120b",
-      "llm_args": {"temperature": 0.0},
+      "llm_args": {"temperature": 0.0, "num_retries": 8, "retry_strategy": "exponential_backoff_retry"},
       "daily_token_budget": 200000,
       "tokens_per_task_estimate": 9000,
       "daily_request_budget": 1000,
@@ -22,17 +22,17 @@
     {
       "name": "qwen3.8-27b",
       "llm": "groq/qwen/qwen3.8-27b",
-      "llm_args": {"temperature": 0.0},
+      "llm_args": {"temperature": 0.0, "num_retries": 8, "retry_strategy": "exponential_backoff_retry"},
       "daily_token_budget": 200000,
-      "tokens_per_task_estimate": 12000,
+      "tokens_per_task_estimate": 9000,
       "daily_request_budget": 1000,
       "requests_per_task_estimate": 20,
-      "notes": "Groq free plan (verify limits in the Groq console). Token estimate is UNMEASURED and padded for reasoning output; replace it after a 1-task smoke run."
+      "notes": "Groq free plan (verify limits in the Groq console). Measured 8,654 mean user tokens/simulation over 18 test-split sims (rq1 chunk 1, 2026-10-11); 1-task smoke had 5,697. Groq ITPM limit for this model is 7,000."
     },
     {
       "name": "gemini3.8flash",
       "llm": "gemini/gemini-3.8-flash",
-      "llm_args": {"temperature": 0.0},
+      "llm_args": {"temperature": 0.0, "num_retries": 8, "retry_strategy": "exponential_backoff_retry"},
       "daily_token_budget": null,
       "tokens_per_task_estimate": 9000,
       "daily_request_budget": null,

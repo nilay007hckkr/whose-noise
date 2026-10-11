@@ -1,0 +1,55 @@
+diff --git a/src/tau2/runner/run_lock.py b/src/tau2/runner/run_lock.py
+index af95e60..baeec27 100644
+--- a/src/tau2/runner/run_lock.py
++++ b/src/tau2/runner/run_lock.py
+@@ -3,8 +3,32 @@
+ 
+ from __future__ import annotations
+ 
+-import fcntl
+ import os
++
++try:  # POSIX
++    import fcntl
++
++    def _lock(handle) -> None:
++        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
++
++    def _unlock(handle) -> None:
++        fcntl.flock(handle, fcntl.LOCK_UN)
++
++except ImportError:  # Windows: local patch (whose-noise), msvcrt byte-range lock
++    import msvcrt
++
++    def _lock(handle) -> None:
++        handle.seek(0)
++        try:
++            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
++        except OSError as error:
++            raise BlockingIOError(str(error)) from error
++
++    def _unlock(handle) -> None:
++        handle.seek(0)
++        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
++
++
+ from collections.abc import Iterator
+ from contextlib import contextmanager
+ from pathlib import Path
+@@ -27,7 +51,7 @@ def claim_run_directories(run_dirs: list[Path]) -> Iterator[None]:
+             lock_path = run_dir / RUN_LOCK_FILENAME
+             handle = lock_path.open("a+")
+             try:
+-                fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
++                _lock(handle)
+             except BlockingIOError as error:
+                 handle.close()
+                 owner = "unknown"
+@@ -48,6 +72,6 @@ def claim_run_directories(run_dirs: list[Path]) -> Iterator[None]:
+     finally:
+         for handle in reversed(handles):
+             try:
+-                fcntl.flock(handle, fcntl.LOCK_UN)
++                _unlock(handle)
+             finally:
+                 handle.close()

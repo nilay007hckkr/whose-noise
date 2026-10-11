@@ -328,9 +328,10 @@ def test_config_requires_fields():
         (
             "rq1_simulator_swap.json",
             [
-                f"rq1_qwen4b_gptoss120b_test-nonl_t3_s300_c{CFG_HASH}",
-                "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_c813736",
-                "rq1_qwen4b_gemini3.8flash_test-nonl_t3_s300_c5fa9f1",
+                # hashes include the Groq retry args (num_retries / exponential backoff)
+                "rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638",
+                "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908",
+                "rq1_qwen4b_gemini3.8flash_test-nonl_t3_s300_cf43780",
             ],
         ),
     ],
