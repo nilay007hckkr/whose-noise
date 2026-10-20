@@ -14,20 +14,20 @@
       "llm": "groq/openai/gpt-oss-120b",
       "llm_args": {"temperature": 0.0, "num_retries": 8, "retry_strategy": "exponential_backoff_retry"},
       "daily_token_budget": 200000,
-      "tokens_per_task_estimate": 9000,
+      "tokens_per_task_estimate": 13000,
       "daily_request_budget": 1000,
       "requests_per_task_estimate": 20,
-      "notes": "Groq free plan: 30 RPM, 1K RPD, 8K TPM, 200K TPD. Measured 6-9K tokens/simulation."
+      "notes": "Groq free plan: 30 RPM, 1K RPD, 8K TPM, 200K TPD. Measured 11,812 mean user tokens/simulation over 21 valid RQ1 chunk-1 sims (2026-10-12; reasoning tokens count); pilot had 6,097. Estimate padded ~10%."
     },
     {
       "name": "qwen3.8-27b",
       "llm": "groq/qwen/qwen3.8-27b",
       "llm_args": {"temperature": 0.0, "num_retries": 8, "retry_strategy": "exponential_backoff_retry"},
       "daily_token_budget": 200000,
-      "tokens_per_task_estimate": 9000,
+      "tokens_per_task_estimate": 10000,
       "daily_request_budget": 1000,
       "requests_per_task_estimate": 20,
-      "notes": "Groq free plan (verify limits in the Groq console). Measured 8,654 mean user tokens/simulation over 18 test-split sims (rq1 chunk 1, 2026-10-11); 1-task smoke had 5,697. Groq ITPM limit for this model is 7,000."
+      "notes": "Groq free plan (verify limits in the Groq console). Measured 8,930 mean user tokens/simulation over 24 RQ1 chunk-1 sims (2026-10-12); 1-task smoke had 5,697. Groq ITPM limit for this model is 7,000."
     },
     {
       "name": "gemini3.8flash",

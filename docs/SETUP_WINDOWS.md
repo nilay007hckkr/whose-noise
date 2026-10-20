@@ -94,9 +94,13 @@ If it is missing and a task has NL assertions, tau2 records an `infrastructure_e
 
    ```powershell
    cd D:\Programming\Reaserch
-   .\tools\llama.cpp-b11552\llama-server.exe -m models\Qwen3-4B-Instruct-2507-Q4_K_M.gguf --jinja -ngl all -c 16384 --port 8080 --alias qwen3-4b
+   .\tools\llama.cpp-b11552\llama-server.exe -m models\Qwen3-4B-Instruct-2507-Q4_K_M.gguf --jinja -ngl all -c 16384 --load-mode none --cache-ram 512 --port 8080 --alias qwen3-4b
    ```
 
+   - `--load-mode none` (this build's replacement for `--no-mmap`) loads the weights straight onto the GPU
+     instead of memory-mapping the 2.5 GB file, so the process uses ~0.75 GB of system RAM instead of ~2.8 GB.
+   - `--cache-ram 512` caps the host-RAM prompt cache. The default in this build is 8192 MiB; during a
+     long run it grew the server to ~5.9 GB RAM on a 16 GB laptop and triggered low-memory kills.
    - `--jinja` turns on the model's chat template, which tool calling needs.
    - `--alias qwen3-4b` is the model name that tau2 sends (`openai/qwen3-4b`).
    - With these flags the server picks 4 parallel slots with a unified KV cache, and prompt caching is
@@ -172,6 +176,8 @@ Results land in `<tau2 folder>\data\simulations\<save-to>\results.json`.
 | `AuthenticationError` for Groq/Gemini | key missing, or `.env` has spaces or quotes | fix `.env` and re-run the same command (`--auto-resume`) |
 | `RateLimitError` / HTTP 429 from Groq | free plan: 30 RPM, 8K TPM, 1K RPD, 200K TPD per model | keep `--max-concurrency 1`; continue the next day with `--task-chunk` |
 | `Connection refused` to 127.0.0.1:8080 | llama-server is not running, or is on a different port | start it (section 3), then check `/health` |
+| llama-server RAM keeps growing during a run (GBs) / server killed for low memory | host-RAM prompt cache (`--cache-ram`, default 8192 MiB) and mmap'd weights | restart with `--load-mode none --cache-ram 512` (section 3) |
+| `RateLimitError` from Groq **per minute** (TPM/ITPM) kills whole tasks | LiteLLM's default `constant_retry` retries instantly | keep `"num_retries": 8, "retry_strategy": "exponential_backoff_retry"` in the simulator `llm_args` (configs do this) |
 | Agent never calls tools / outputs raw `<tool_call>` text | server started without `--jinja` | restart with `--jinja` |
 | Context-length error from llama-server | conversation is longer than the per-slot context | raise `-c`, or use `-np 1` so one slot gets the whole context |
 | `cudart64_12.dll` / `cublas64_12.dll` not found | CUDA runtime missing | extract `cudart-llama-bin-win-cuda-12.4-x64.zip` next to `llama-server.exe` |
