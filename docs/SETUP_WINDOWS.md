@@ -5,7 +5,7 @@ Tested layout (Windows 11, NVIDIA GPU, Git Bash and PowerShell 5.1):
 ```
 D:\Programming\Reaserch\
   tau2-bench\            tau2-bench main (v1.0.1), CLI `tau2`
-  tau2-bench-ml\         (RQ2 only) tau2-bench `tau-multilingual` branch
+  tau2-bench-multilingual\  (RQ2 only) tau2-bench `tau-multilingual` branch (commit 8ff48b8)
   whose-noise\           this repo
   tools\llama.cpp-b11552\llama-server.exe
   models\Qwen3-4B-Instruct-2507-Q4_K_M.gguf
@@ -50,8 +50,8 @@ stays untouched:
 
 ```powershell
 cd D:\Programming\Reaserch
-git clone --branch tau-multilingual --single-branch https://github.com/sierra-research/tau2-bench.git tau2-bench-ml
-cd tau2-bench-ml
+git clone --branch tau-multilingual --single-branch https://github.com/sierra-research/tau2-bench.git tau2-bench-multilingual
+cd tau2-bench-multilingual
 git log -1 --format="%H %cd"      # write this hash into PREREGISTRATION.md
 uv sync --extra voice
 uv run tau2 run --help | Select-String "text-input-style|user-persona-id|task-set-name"
@@ -59,7 +59,7 @@ uv run tau2 run --help | Select-String "text-input-style|user-persona-id|task-se
 
 ### API keys (`.env` in the tau2-bench folder, never in this repo)
 
-Create `D:\Programming\Reaserch\tau2-bench\.env` (and a copy in `tau2-bench-ml\` if you use it):
+Create `D:\Programming\Reaserch\tau2-bench\.env` (and a copy in `tau2-bench-multilingual\` if you use it):
 
 ```
 GROQ_API_KEY=your_groq_key_here
@@ -151,18 +151,36 @@ PYTHONUTF8=1 uv run tau2 run --domain retail \
   --task-ids 5 --num-trials 1 --seed 300 --max-concurrency 1 --save-to smoke_task5
 ```
 
-Hindi smoke test (*Git Bash*, in `tau2-bench-ml`). It is **unverified** until it has run once (see
-RESEARCH_NOTES section 11). Task ids in `retail_hi` carry a `_hi` suffix:
+Hindi smoke test (*Git Bash*, in `tau2-bench-multilingual`). Task ids in `retail_hi` carry a `_hi`
+suffix. This is the command that ran on 2026-10-12 (`smoke_hi_romanized_qwen38`: task `0_hi` passed),
+plus `--workers 0`:
 
 ```bash
-cd /d/Programming/Reaserch/tau2-bench-ml
-PYTHONUTF8=1 uv run tau2 run --domain retail --task-set-name retail_hi \
-  --user-persona-id rishika_hindi_v1 --text-input-style romanized \
+cd /d/Programming/Reaserch/tau2-bench-multilingual
+PYTHONUTF8=1 uv run tau2 run --domain retail --task-set-name retail_hi --task-ids 0_hi \
+  --user-persona-id hi --text-input-style romanized --no-llm-communicate-judge \
   --agent-llm openai/qwen3-4b \
-  --agent-llm-args '{"api_base": "http://127.0.0.1:8080/v1", "api_key": "local", "temperature": 0.0}' \
-  --user-llm groq/openai/gpt-oss-120b --user-llm-args '{"temperature": 0.0}' \
-  --task-ids 0_hi --num-trials 1 --seed 300 --max-concurrency 1 --save-to smoke_hi_rom
+  --agent-llm-args '{"api_base":"http://127.0.0.1:8080/v1","api_key":"local","temperature":0.0}' \
+  --user-llm groq/qwen/qwen3.8-27b \
+  --user-llm-args '{"temperature":0.0,"num_retries":8,"retry_strategy":"exponential_backoff_retry"}' \
+  --num-trials 1 --seed 42 --max-concurrency 1 --workers 0 --save-to smoke_hi_romanized_qwen38 --auto-resume
 ```
+
+Do not drop these flags when you adapt the command:
+
+- `--no-llm-communicate-judge`: the branch default ("auto") scores `communicate_info` with an LLM judge
+  (`gpt-5.4-mini`, needs `OPENAI_API_KEY`) for non-English runs only, so a run without the flag is scored
+  differently from the English arm and from every `run_grid.py` cell. Task 0 has no `communicate_info`,
+  but pilot tasks such as 32 do.
+- `--workers 0`: the branch defaults to 8 worker processes for text runs; `--max-concurrency 1` alone would
+  still put several simulations in flight. With one task and one trial it changes nothing, which is why
+  the smoke run did not need it.
+- `--task-ids` also switches off the branch's default 50-task subset.
+
+For anything beyond a smoke test, run `uv run python scripts/run_grid.py configs/rq2_option_a.json
+--condition hi_romanized --dry-run` from `whose-noise` and copy the printed command: it also pins
+`--target-language-directive-version v3 --agent-caller-locale-context` and checks that an existing run was
+made with the same settings before it resumes.
 
 Results land in `<tau2 folder>\data\simulations\<save-to>\results.json`.
 

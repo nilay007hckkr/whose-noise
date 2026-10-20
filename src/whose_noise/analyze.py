@@ -3,6 +3,7 @@
 Usage::
 
     python -m whose_noise.analyze RESULTS_JSON [RESULTS_JSON ...] [--csv out.csv] [--k 1 2 3]
+                                  [--fidelity]
 
 For each run it prints:
 
@@ -12,7 +13,12 @@ For each run it prints:
   and mean duration;
 * a per-task table (valid trials, successes, whether the verdict flipped);
 * the failed simulations with their first failed expected action;
-* a Groq free-tier budget line (how many tasks/day the user simulator can afford).
+* a Groq free-tier budget line (how many tasks/day the user simulator can afford);
+* with ``--fidelity``, a ``-- simulator fidelity --`` section: deterministic transcript
+  checks from ``whose_noise.fidelity`` (premature STOP after an unexecuted confirmation,
+  customer transfer requests, script leakage for language-pack runs, turn counts),
+  as counts and rates separately for passing and failing simulations. The fidelity
+  columns are then also written to ``--csv``.
 
 Statistics come from ``whose_noise.metrics`` when it is importable and its functions
 accept the expected arguments; otherwise small local fallbacks are used, so this
@@ -48,6 +54,7 @@ from typing import Any
 
 import pandas as pd
 
+from whose_noise.fidelity import FIDELITY_COLUMNS, add_fidelity, format_fidelity
 from whose_noise.tau2_results import (
     DuplicateTrialError,
     load_runs,
@@ -418,24 +425,34 @@ def _frame_text(df: pd.DataFrame, empty: str) -> str:
     return df.to_string(index=False) if len(df) else empty
 
 
-def report(df: pd.DataFrame, ks: Sequence[int] | None = None) -> str:
-    """Full text report for every run present in ``df``."""
+def report(df: pd.DataFrame, ks: Sequence[int] | None = None, fidelity: bool = False) -> str:
+    """Full text report for every run present in ``df``.
+
+    Args:
+        df: Frame from :func:`load_runs` (optionally already passed through
+            :func:`whose_noise.fidelity.add_fidelity`).
+        ks: Values of k for pass^k (see :func:`summarize_run`).
+        fidelity: Append a ``-- simulator fidelity --`` section per run. The results
+            files are re-read for the transcripts unless ``df`` already holds the
+            fidelity columns.
+    """
+    if fidelity and not set(FIDELITY_COLUMNS) <= set(df.columns):
+        df = add_fidelity(df)
     blocks = []
     for _, run_df in df.groupby("results_path", sort=False):
         s = summarize_run(run_df, ks)
-        blocks.append(
-            "\n".join(
-                [
-                    format_summary(s),
-                    "",
-                    "-- per task --",
-                    _frame_text(task_table(run_df), "(no tasks)"),
-                    "",
-                    "-- failed simulations --",
-                    _frame_text(failed_table(run_df), "(none)"),
-                ]
-            )
-        )
+        parts = [
+            format_summary(s),
+            "",
+            "-- per task --",
+            _frame_text(task_table(run_df), "(no tasks)"),
+            "",
+            "-- failed simulations --",
+            _frame_text(failed_table(run_df), "(none)"),
+        ]
+        if fidelity:
+            parts += ["", "-- simulator fidelity --", format_fidelity(run_df)]
+        blocks.append("\n".join(parts))
     return "\n\n".join(blocks)
 
 
@@ -462,6 +479,12 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="load files with repeated (task, trial) pairs or mixed seeds (printed as WARNING)",
     )
+    parser.add_argument(
+        "--fidelity",
+        action="store_true",
+        help="add deterministic simulator-fidelity checks (premature STOP, transfer requests, "
+        "script leakage) per run, split by pass/fail; also adds their columns to --csv",
+    )
     return parser
 
 
@@ -478,7 +501,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if df.empty:
         print("no simulations found")
         return 1
-    print(report(df, args.k))
+    if args.fidelity:
+        df = add_fidelity(df)
+    print(report(df, args.k, fidelity=args.fidelity))
     if args.csv:
         to_csv_frame(df).to_csv(args.csv, index=False)
         print(f"\nwrote {len(df)} rows to {args.csv}")

@@ -105,16 +105,36 @@ uv run pytest
 #    was made with a different agent/simulator llm, llm_args, seed, trials or domain.
 uv run python scripts/run_grid.py configs/pilot.json --dry-run
 uv run python scripts/run_grid.py configs/rq1_simulator_swap.json --dry-run
+#    RQ2 (Hindi/Hinglish users, on the tau-multilingual checkout): a "conditions" list in
+#    the config makes the grid simulators x conditions, one tau2 run (results.json) per
+#    cell. Each condition sets --task-set-name, --user-persona-id, an optional
+#    --text-input-style, the task-id suffix (_hi / _en) and its own
+#    tokens_per_task_estimate (Hindi ~35K vs English ~13K per simulation; cells of one
+#    simulator share its daily quota). --no-llm-communicate-judge and --workers 0 are
+#    always added. The dry-run also checks that every <id>_hi pairs with base task <id>
+#    (same evaluation_criteria), that the persona's language pack declares the text
+#    style, and that the base task files equal main's ("reference_tau2_dir").
+#    "tasks": {..., "limit": 12} keeps the first 12 ids after the NL filter.
+uv run python scripts/run_grid.py configs/rq2_option_a.json --dry-run --task-chunk 1/12
 
 # 3. Run for real (llama-server must be up; checks it with a health probe)
 uv run python scripts/run_grid.py configs/pilot.json
 #    Large grids: run the first K of N task chunks; re-running resumes (tau2 --auto-resume)
 uv run python scripts/run_grid.py configs/rq1_simulator_swap.json --only gptoss120b --task-chunk 1/6
+#    RQ2 Option A (PREREGISTRATION sections 6 and 9): 3 arms (en_pack, hi_romanized,
+#    hi_code_mixed) x 12 tasks x 2 trials, ~2.3M simulator tokens on the gpt-oss-120b quota
+#    that RQ1 also uses. Run all 3 arms for the same task chunk on the same day (1 task/day):
+uv run python scripts/run_grid.py configs/rq2_option_a.json --task-chunk 1/12
 
 # 4. Summarise one or more runs: success, pass^k with task-bootstrap CI, flip rate,
 #    per-task table, failed actions, token use, Groq budget line
 uv run python -m whose_noise.analyze ../tau2-bench/data/simulations/pilot1_qwen4b_gptoss120b
 uv run python -m whose_noise.analyze RUN_DIR_1 RUN_DIR_2 --k 1 2 3 --csv results/summary.csv
+#    --fidelity adds deterministic simulator-fidelity checks per run, split by pass/fail
+#    (customer "Yes.###STOP###" before the agent could act, transfer requests, Devanagari
+#    leakage in romanized/code-mixed Hindi runs); no LLM calls. Flags are screens: read
+#    the flagged transcripts before calling them simulator errors.
+uv run python -m whose_noise.analyze RUN_DIR_1 RUN_DIR_2 --fidelity --csv results/fidelity.csv
 ```
 
 The variance decomposition (`whose_noise.variance`) has no CLI yet. Use it from Python:
@@ -155,9 +175,10 @@ To compare Hindi and English, strip the `_hi` / `_en` id suffix before calling
 | `src/whose_noise/tau2_results.py` | `results.json` -> one row per simulation. Infra errors are kept but flagged (`success` is NA). |
 | `src/whose_noise/metrics.py` | pass^k (unbiased, per task), task-cluster bootstrap, paired bootstrap difference, exact McNemar, Wilson CI. |
 | `src/whose_noise/variance.py` | Balanced ANOVA variance components (crossed task x simulator design; nested seed design), task bootstrap, noise floor, synthetic data with known components. |
-| `src/whose_noise/analyze.py` | CLI text report per run. |
+| `src/whose_noise/analyze.py` | CLI text report per run (`--fidelity` adds the simulator-fidelity section). |
+| `src/whose_noise/fidelity.py` | Deterministic, explainable per-simulation transcript checks: premature STOP after an unexecuted confirmation (strict and loose), customer transfer requests, turn counts, script leakage (Devanagari share in romanized/code-mixed runs, Latin share in native-script runs). |
 | `scripts/run_grid.py` | Builds and runs `tau2 run` commands from a JSON config, with a daily-budget guard and a secret scan (stdlib only). |
-| `configs/` | `pilot.json` (5 tasks x 3 trials), `rq1_simulator_swap.json` (40 test tasks x 3 trials x simulators). |
+| `configs/` | `pilot.json` (5 tasks x 3 trials), `rq1_simulator_swap.json` (29 judge-free test tasks x 3 trials x simulators), `rq2_option_a.json` (RQ2 Option A: first 12 judge-free test tasks x 2 trials x {en_pack, hi_romanized, hi_code_mixed}, gpt-oss-120b; `hi_native` defined but disabled). |
 | `tests/` | Hand-computed expected values and synthetic data with known ground truth. |
 | `docs/RESEARCH_NOTES.md` | Statistics spec, tau2 seeding facts, design notes. |
 
@@ -171,9 +192,7 @@ No numbers are filled in until they come out of `analyze.py` on a committed `res
 | week2 smoke | Qwen3-4B | gpt-oss-120b | en | 3 x 1 | 2 of 3 | n/a (smoke) | - | - | 1 of 3 |
 | pilot1 (in progress, 12 of 15 sims) | Qwen3-4B | gpt-oss-120b | en | 5 x 3 | 6 (tasks 0, 1 only) | 0.500 (no CI: 2 tasks) | 0.000 | 2 of 2 tasks | 6 of 12 (NL-judge auth, see below) |
 | RQ1 simulator swap | Qwen3-4B | gpt-oss-120b / qwen3.8-27b / (gemini) | en | 29 x 3 each | - | - | - | - | - |
-| RQ2 English | Qwen3-4B | gpt-oss-120b | en | 29 x 3 | - | - | - | - | - |
-| RQ2 Hindi romanized | Qwen3-4B | gpt-oss-120b | hi (romanized) | 29 x 3 | - | - | - | - | - |
-| RQ2 Hinglish code-mixed | Qwen3-4B | gpt-oss-120b | hi (code_mixed) | 29 x 3 | - | - | - | - | - |
+| RQ2 Option A | Qwen3-4B | gpt-oss-120b | en_pack, hi (romanized), hi (code_mixed) | 12 x 2 each | - | - | - | - | - |
 
 The week2 smoke run is a plumbing check (task 0 passed, task 1 failed, task 2 hit an infra error). It is
 not evidence about the agent. The pilot1 row is a partial snapshot taken on 2026-10-11 with `analyze.py`.
@@ -210,7 +229,9 @@ These limits are known in advance. Each one is a threat to validity, not a bug t
 6. **Free-tier quotas shape the design.** Groq's free plan allows 200K tokens/day per model, and
    gpt-oss-120b uses about 6-9K tokens per simulation. That is about 22-33 simulations/day per simulator, so
    one 29 x 3 condition (87 simulations) takes about 3-4 days. Rate-limit errors show up as `infrastructure_error`, and these are
-   re-run, not counted as failures. If they are not re-run, the design is unbalanced.
+   re-run, not counted as failures. If they are not re-run, the design is unbalanced. A Hindi user
+   costs about 3.5 times as much: 31,458 user tokens in one romanized smoke simulation (qwen3.8-27b
+   simulator), so `run_grid.py` budgets each RQ2 condition with its own per-simulation estimate.
 7. **Hindi infrastructure errors may not be random.** If Hindi runs crash or hit `max_steps` more often,
    dropping them biases the comparison. Infra-error rates are reported for each language as an outcome in
    their own right.
