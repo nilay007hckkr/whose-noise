@@ -15,6 +15,7 @@ from whose_noise.tau2_results import (
     COLUMNS,
     DuplicateTrialError,
     DuplicateTrialWarning,
+    is_successful_reward,
     load_runs,
     outcomes_by_task,
     trial_integrity_problems,
@@ -172,6 +173,33 @@ def test_load_multiple_runs(synthetic_results: Path, mini_results: Path) -> None
     df = load_runs([synthetic_results, mini_results])
     assert len(df) == 7 + 3
     assert set(df["run_name"]) == {"synth_run", "fixtures"}
+
+
+def test_success_uses_tau2_tolerance(tmp_path: Path) -> None:
+    # PREREGISTRATION section 3: y = 1 iff |reward - 1| <= 1e-6 (tau2's is_successful).
+    rewards = {"0": 0.9999999, "1": 1.0000005, "2": 1.0, "3": 0.99999, "4": 0.0, "5": None}
+    sims = [
+        {
+            "id": f"s{task}",
+            "task_id": task,
+            "trial": 0,
+            "seed": 1,
+            "termination_reason": "user_stop",
+            "reward_info": {"reward": reward, "db_check": {"db_match": True}},
+            "messages": [],
+        }
+        for task, reward in rewards.items()
+    ]
+    run = tmp_path / "tol_run"
+    run.mkdir()
+    (run / "results.json").write_text(
+        json.dumps({"info": {}, "simulations": sims}), encoding="utf-8"
+    )
+    df = load_runs(run).set_index("task_id")
+    got = {t: bool(df.loc[t, "success"]) for t in rewards}
+    assert got == {"0": True, "1": True, "2": True, "3": False, "4": False, "5": False}
+    assert not df["is_infra_error"].any()  # a null reward is a failure, not missing
+    assert is_successful_reward(1 - 1e-6) and not is_successful_reward(float("nan"))
 
 
 def test_missing_and_invalid_files(tmp_path: Path) -> None:

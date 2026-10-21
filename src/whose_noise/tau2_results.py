@@ -12,7 +12,9 @@ Conventions
   nothing about the agent or the user simulator, so their ``reward`` is NaN and their
   ``success`` is ``pd.NA``. They are kept in the frame (so they can be counted) and
   excluded by :func:`outcomes_by_task` by default.
-* ``success`` is ``reward == 1.0`` (tau-bench's binary pass criterion).
+* ``success`` is ``1 - 1e-6 <= reward <= 1 + 1e-6``: tau2's ``is_successful``
+  (``tau2/metrics/agent_metrics.py``) and PREREGISTRATION section 3. A NaN reward on a
+  valid simulation is a failure.
 * ``first_failed_action`` is the name of the first expected action (in the task's
   gold order) whose ``action_match`` is False, regardless of read/write type.
 * ``failed_write_actions`` is a tuple of names of expected *write* actions that did
@@ -44,6 +46,8 @@ from typing import Any, Literal
 import pandas as pd
 
 INFRA_ERROR = "infrastructure_error"
+SUCCESS_TOLERANCE = 1e-6
+"""tau2's ``is_successful`` tolerance around reward 1 (PREREGISTRATION section 3)."""
 
 COLUMNS: tuple[str, ...] = (
     "run_name",
@@ -112,6 +116,15 @@ def read_results(path: PathLike) -> dict[str, Any]:
     if missing:
         raise ValueError(f"{p} does not look like a tau2 results file; missing {sorted(missing)}")
     return data
+
+
+def is_successful_reward(reward: float) -> bool:
+    """tau2's pass criterion ``1 - 1e-6 <= reward <= 1 + 1e-6`` (False for NaN).
+
+    Written exactly as ``tau2.metrics.agent_metrics.is_successful`` so the boundary
+    cases round the same way.
+    """
+    return bool((1 - SUCCESS_TOLERANCE) <= reward <= (1 + SUCCESS_TOLERANCE))
 
 
 def _token_sums(messages: Iterable[Mapping[str, Any]], role: str) -> tuple[int, int]:
@@ -201,7 +214,7 @@ def simulation_to_row(
     else:
         raw_reward = reward_info.get("reward")
         reward = float(raw_reward) if raw_reward is not None else float("nan")
-        success = bool(reward == 1.0)
+        success = is_successful_reward(reward)
         db_check = reward_info.get("db_check") or {}
         db_match = db_check.get("db_match", pd.NA)
         db_match = pd.NA if db_match is None else bool(db_match)

@@ -191,7 +191,8 @@ share_agent = #pairs labelled assistant / #pairs with a divergence
 - Caveat: only the **first** divergence can be attributed. After it the inputs differ, and later
   differences are consequences.
 - CI: task-cluster bootstrap over cells.
-- Complementary **agent determinism audit**: send the identical recorded agent request (from a saved
+- Complementary **agent determinism audit** (done 2026-10-21, `scripts/determinism_audit.py`; result in
+  docs/RESULTS_LOG.md: 2 of 3 probes were not deterministic at temperature 0): send the identical recorded agent request (from a saved
   conversation prefix) to llama-server 10 times, then 10 more times with other requests in between.
   If every response is identical, the agent side is deterministic under our serving settings, and
   any residual noise must start at the simulator (Groq). Groq documents `seed` as best-effort and

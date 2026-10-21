@@ -117,6 +117,87 @@ Same method as audit #1. Inputs and raw verdicts: `results/audit/failed_cases_rq
 - Judges made at least one wrong claim about tool code (item change blocking address changes);
   verdicts unaffected, but judge statements about code need spot checks.
 
+## 2026-10-20: deterministic simulator-fidelity scan of RQ1 (exploratory)
+
+`analyze.py --fidelity` (`whose_noise.fidelity`, regex/structure checks, no LLM) on snapshot copies of
+both RQ1 runs (gpt-oss 48 sims incl. chunk 4 tasks; qwen3.8 36 sims), every simulation, passing ones
+included.
+
+| Simulator | premature_stop in failures | in passes | customer asks for transfer |
+|---|---|---|---|
+| gpt-oss-120b | 6 of 29 | 0 of 19 | 6 of 48 (3 are task 12, whose script asks for a human) |
+| qwen3.8-27b | 0 of 10 | 0 of 26 | 7 of 36 (3 are task 12) |
+
+- The 6 flagged gpt-oss simulations (tasks 9 t1, 18 t0, 26 t2, 27 t2, 32 t0, 42 t0) are exactly the
+  cases the LLM-judge audits labelled premature "Yes ... ###STOP###": two independent methods agree.
+- Never flagged in a passing simulation, so the audits' failure-only sampling did not hide cases.
+- Same 12 tasks: gpt-oss 6/36 vs qwen 0/36, Fisher exact p = 0.025 (treats sims as independent); the
+  6 stops are on 6 different tasks; gpt-oss rate 0.167, task-bootstrap 95% CI [0.083, 0.250].
+- Upper bound on its share of the gap: if all 6 had passed, gpt-oss pass^1 would be at most
+  20/36 = 0.556 vs qwen 0.722, so premature stops account for at most ~0.17 of the 0.33 gap.
+- Upstream context: the bug is known (tau2-bench issues #182 and #297, both open; #297 proposes a
+  simulator-guideline fix and reports retail pass^1 54% -> 80% with one model, Doubao, as agent and
+  user). Not yet shown upstream: that its rate depends strongly on the simulator model under identical
+  guidelines (17% vs 0% here). Candidate follow-up (needs a pre-registered addendum before running):
+  re-run RQ1 with #297's guideline and test whether the simulator gap shrinks.
+
+## 2026-10-21: agent determinism audit (exploratory; RESEARCH_NOTES section 5)
+
+`scripts/determinism_audit.py`: real agent requests rebuilt from recorded qwen3.8-run conversations
+(retail policy as system prompt, retail tool schemas, conversation prefix), sent to the same
+llama-server settings as RQ1 (temperature 0), with no experiment running.
+
+| Probe | A: 10 identical requests back to back | B: 10 identical, each after a different request |
+|---|---|---|
+| task 5 trial 0, cut 10/30 | 1 distinct output | 2 distinct outputs |
+| task 9 trial 0, cut 14/26 | 2 distinct | 2 distinct |
+| task 12 trial 0, cut 26/34 (next turn is a tool call) | 1 distinct | 1 distinct |
+
+- The agent is **not** deterministic at temperature 0 under our serving settings: 2 of 3 probes gave
+  more than one output for byte-identical input, once even back to back.
+- The differences were small wording changes in text replies ("I have successfully" vs "I've
+  successfully"; a different second half of a sentence); the tool-call probe was stable. In a
+  multi-turn conversation such a change alters the simulator's input and can push the whole dialogue
+  onto a different path, so the agent side contributes to RQ1's residual (re-run) component.
+- Interleaving other requests changed the output of one probe that was stable back to back, which
+  points at prompt-cache / batching effects in llama.cpp. This is consistent with the 2026-10-12
+  `--cache-ram` deviation mattering for the residual (sensitivity analysis pending).
+- Only 3 probes x 20 calls: shows that agent-side nondeterminism exists, not how often it decides a
+  verdict (that is H1c's job).
+
+## 2026-10-21: erratum to the pre-registration deviations log; infra errors before re-runs
+
+PREREGISTRATION.md is frozen and not edited; this entry corrects it for readers of RQ1.
+
+- **Wrong date in section 12.** The row "Simulator `llm_args` gained `num_retries 8` and
+  exponential backoff; the RQ1 run names changed ..." is dated 2026-10-12. The run files
+  and logs show:
+  - qwen3.8-27b: the unused run `rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_c813736` has user
+    `llm_args` `{"temperature": 0.0}` (no retries) and one simulation (task 5, trial 0,
+    `infrastructure_error`) at 2026-10-11 16:50:42 IST; its log ends at 16:51:13. The run used
+    for RQ1, `..._cd30908`, has `num_retries 8` and `exponential_backoff_retry` in `info`, and
+    the `argv` of its first invocation (log header 2026-10-11 16:52:09) already passes them;
+    its first simulation started at 16:52:20. For qwen3.8 the change
+    and the run-name switch therefore happened on **2026-10-11 at about 16:51 IST**, before its
+    first valid RQ1 simulation.
+  - gpt-oss-120b: run `rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638` was created with the
+    retry settings (log starts 2026-10-12 20:12:29, first simulation 20:13:06 IST), so for this
+    simulator the change happened before 2026-10-12 20:13 IST.
+  - Every RQ1 simulation used in the analysis ran with the retry settings.
+- **The `--cache-ram` cutoff (2026-10-12 20:23 IST) is consistent with the data.** gpt-oss task
+  12 trial 1 ended at 20:22:53 and the next simulation started at 20:23:17 (a 24 s gap; about
+  1 s elsewhere). No simulation straddles the cutoff. Timestamps are naive local IST.
+- **Infra errors before re-runs (PREREGISTRATION section 8).** Counted from
+  `results/logs/<run_name>.log` ("failed permanently after 4 attempts" lines and the
+  per-invocation summaries): gpt-oss-120b **3** (tasks 26, 27, 32, trial 2; first invocation,
+  2026-10-12) and qwen3.8-27b **6** (tasks 12, 17, 18, 26, 27, 32, trial 2; first invocation,
+  2026-10-11). Each cell was refilled once by the next `--auto-resume` and is now valid
+  (gpt-oss on 2026-10-19, qwen3.8 on 2026-10-12 between 20:50 and 20:55 IST, i.e. AFTER the
+  cache-ram cutoff, so those 6 qwen3.8 cells are mixed-period in the section 12 analysis). The
+  chunk-1 table above shows qwen3.8 as 24/24 because it was written after that refill. tau2
+  `--auto-resume` deletes infra-error simulations before re-running them, so results.json
+  cannot show these counts: `scripts/analyze_rq1.py` reads them from `--rerun-evidence`.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in

@@ -53,7 +53,7 @@ nominal-0.95 in a Monte Carlo check at ``S = 3``). Report per-simulator means an
 
 Assumptions (all documented again in the public functions)
 -----------------------------------------------------------
-* Outcomes are binary (tau2's ``reward == 1``). Infrastructure errors are removed
+* Outcomes are binary (tau2's ``|reward - 1| <= 1e-6``). Infrastructure errors are removed
   BEFORE calling this module, because they are missing data, not failures.
 * Repeats inside a cell are exchangeable and independent given the cell. Running the
   agent with ``--max-concurrency > 1`` on llama.cpp (batching, KV-cache reuse) or
