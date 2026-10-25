@@ -198,6 +198,51 @@ PREREGISTRATION.md is frozen and not edited; this entry corrects it for readers 
   `--auto-resume` deletes infra-error simulations before re-running them, so results.json
   cannot show these counts: `scripts/analyze_rq1.py` reads them from `--rerun-evidence`.
 
+## 2026-10-25: RQ1 FINAL (confirmatory, pre-registered analysis)
+
+`scripts/analyze_rq1.py` (B = 10,000, seed 20261011), report in `results/rq1_analysis/report.md`
+(+ `results.json`, `rerun_evidence.json`). Final data: 29 of 29 tasks x 3 trials x 2 simulators =
+174 valid simulations, 0 dropped, 0 protocol warnings. Infra errors before re-runs: gpt-oss 3/87,
+qwen3.8 9/87 (all Groq daily-quota errors, each re-run once).
+
+| Hypothesis | Estimate [95% CI] | Rule | Verdict |
+|---|---|---|---|
+| H1a residual (re-run) component | 0.0690 [0.0345, 0.1092] | lower bound > 0 | **SUPPORTED** |
+| H1b task x simulator component | 0.0868 [0.0361, 0.1289] | lower bound > 0 | **SUPPORTED** |
+
+Descriptive (pre-registered reporting, not tests):
+
+| Simulator | pass^1 | pass^2 | pass^3 |
+|---|---|---|---|
+| gpt-oss-120b | 0.310 [0.172, 0.448] | 0.207 [0.092, 0.333] | 0.138 [0.034, 0.276] |
+| qwen3.8-27b | 0.563 [0.391, 0.736] | 0.529 [0.345, 0.701] | 0.517 [0.345, 0.690] |
+
+- Variance shares: task x simulator 0.328, task 0.305, residual 0.260, simulator 0.106 (not
+  interpreted, S = 2). p_bar 0.437; cell flip rate 0.207; between-simulator disagreement 0.368.
+- Noise floor (gpt-oss cells, 29 tasks): two identical single runs differ by up to +/-0.166 in
+  pass^1 (95% band); +/-0.096 for 3-trial runs.
+- Section 12 (`--cache-ram`, descriptive): no visible shift in the residual (pair-level after - before
+  -0.002 [-0.117, 0.089]); confounded with task and time.
+- Exploratory: paired contrast pass^1 gpt-oss minus qwen -0.253 [-0.425, -0.092]; McNemar on per-task
+  majority 8 vs 2, p = 0.109. H1c share_user pooled 0.716 [0.640, 0.795]; per identical-input
+  generation, gpt-oss's user turns diverged 0.764 of the time, qwen3.8's 0.073, the agent 0.060-0.136.
+- Exploratory fidelity: premature_stop gpt-oss 11/87 (all in failed simulations, on 10 tasks),
+  qwen3.8 0/87; two-sided Fisher exact p = 0.0007 (by task 10/29 vs 0/29, p = 0.0008).
+- Verification (2026-10-25): an independent recomputation with separate code (no repo imports)
+  matched every number above (112 comparisons, 0 mismatches). Every flagged transcript was read: all
+  11 are real "agree + `###STOP###` before the write" events, but in 4 (gpt-oss 9/1, 64/0, 64/1,
+  94/1) the agreed action was already wrong, so the stop did not cost a correct action. 7 involve an
+  expected action (18/0, 26/2, 27/2, 32/0, 42/0, 74/1, 102/2); in only 3 (18/0, 26/2, 27/2) was the
+  stop the only or likely deciding problem. The looser screen's 2 qwen3.8 flags (task 65, trials 1-2)
+  are the user declining optional help, not premature stops.
+- **Correction of the earlier interim claim** ("premature stops account for up to about half the
+  gap", 12-task entry above): that was a loose upper bound on 12 tasks. On the final 29 tasks the
+  pass^1 gap of 0.253 would be 0.218 if the 3 decisive runs had passed and 0.172 even if all 7 had.
+  Premature stops explain only part of the simulator gap; most of it comes from other differences.
+- Upstream context: tau2-bench v2.0.0 (2026-10-20) moved the simulator guidelines into
+  `src/tau2/user/guidelines.py`; the "do not end the conversation prematurely" bullet is there only
+  in the voice templates, not the text ones that RQ1 used.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in

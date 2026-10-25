@@ -1,0 +1,25 @@
+{
+  "source": "results/logs/rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638.log and results/logs/rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908.log: tau2 summary blocks ('Infra Errors N') at the end of each invocation and the following 'Resuming run from ...' lines. gpt-oss: 3 first-attempt infra errors (2026-10-12, Groq TPD; tasks 26, 27, 32 trial 2), each re-run once and valid. qwen3.8: 6 (2026-10-11, Groq TPD; tasks 12, 17, 18, 26, 27, 32 trial 2) and 3 (2026-10-24, Groq TPD; tasks 97, 100, 101 trial 2), each re-run once and valid. Compiled 2026-10-25.",
+  "pre_rerun_infra_errors": {
+    "gpt-oss-120b": 3,
+    "qwen3.8-27b": 9
+  },
+  "extra_attempts": {
+    "gpt-oss-120b": {
+      "26": 1,
+      "27": 1,
+      "32": 1
+    },
+    "qwen3.8-27b": {
+      "12": 1,
+      "17": 1,
+      "18": 1,
+      "26": 1,
+      "27": 1,
+      "32": 1,
+      "97": 1,
+      "100": 1,
+      "101": 1
+    }
+  }
+}

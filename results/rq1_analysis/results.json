@@ -1,0 +1,3143 @@
+{
+  "schema": "whose_noise.rq1_analysis/v1",
+  "meta": {
+    "analysis_timestamp": "2026-10-25T21:05:02+05:30",
+    "preregistration": {
+      "file": "PREREGISTRATION.md",
+      "sha256": "a13c478197463da7c33a7813d1a7bce3ea84b4dfa5977340e69d2bcbd23465f8"
+    },
+    "repo_git": {
+      "head_ref": "refs/heads/main",
+      "head_commit": "5eb3d6a4252ee1f64f12a27d44fbc0403bf8b25d",
+      "tag": "prereg-v1",
+      "tag_commit": "6a1f66191b5ad4b392ab9f61cb6e523a8f6be2bb",
+      "head_is_tag": false,
+      "note": "read from .git files without running git; uncommitted changes are not visible this way (the sha256 of the analysis code is recorded instead)"
+    },
+    "code_sha256": {
+      "scripts/analyze_rq1.py": "7e7607e9ded5e50909ea129346952cb64999463cc4fc19f715ea40aeb2336d9d",
+      "src/whose_noise/metrics.py": "a8885d2f0cc9f4aaaa76fecf8cc470859786dd6d71dfe2b06c5ae2a24e0dec35",
+      "src/whose_noise/variance.py": "d1d75436a0b53c01de6d43b1357708995c6516d54d247201475dfdacadb3edb2",
+      "src/whose_noise/tau2_results.py": "49dead9d0453a5e166a25dd62b5c401b79b0cc684ee83419f8714654272ae31c",
+      "src/whose_noise/fidelity.py": "618b71c2154f3d7f90f7520fd2d215c32e8fd50ce69432fe749692d67e918c6c",
+      "src/whose_noise/divergence.py": "f7d3ac4c3b6372c2406a77bf61c9341336ccd8f8d035716fa0c49866cb3ad073",
+      "src/whose_noise/analyze.py": "3dc79725346c3d7e65928fb9003ab49a14fc9b3f9e80aa6f672623b048035373"
+    },
+    "inputs": [
+      {
+        "role": "gpt-oss-120b",
+        "path": "../tau2-bench/data/simulations/rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638/results.json",
+        "resolved_path": "D:\\Programming\\Reaserch\\tau2-bench\\data\\simulations\\rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638\\results.json",
+        "sha256": "0ccd666fb22c65cff9031a44222ebeffd4be3ab246158aa3557739633d7ddd1d",
+        "run_name": "rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638",
+        "user_llm": "groq/openai/gpt-oss-120b",
+        "agent_llm": "openai/qwen3-4b",
+        "tau2_git_commit": "4ce7c0397c1eb65c9bbe59aeacfe1ca44a1cd699",
+        "tau2_seed": 300,
+        "num_trials": 3,
+        "n_simulations": 87
+      },
+      {
+        "role": "qwen3.8-27b",
+        "path": "../tau2-bench/data/simulations/rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908/results.json",
+        "resolved_path": "D:\\Programming\\Reaserch\\tau2-bench\\data\\simulations\\rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908\\results.json",
+        "sha256": "be1625c512c7cd4c03b0374c3d287607a67bfbb615a6c6792431adc110e70a46",
+        "run_name": "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908",
+        "user_llm": "groq/qwen/qwen3.8-27b",
+        "agent_llm": "openai/qwen3-4b",
+        "tau2_git_commit": "4ce7c0397c1eb65c9bbe59aeacfe1ca44a1cd699",
+        "tau2_seed": 300,
+        "num_trials": 3,
+        "n_simulations": 87
+      }
+    ],
+    "settings": {
+      "n_boot": 10000,
+      "seed": 20261011,
+      "alpha": 0.05,
+      "interval": "percentile, resampling tasks",
+      "repeats_per_cell": 3,
+      "planned_tasks": [
+        "5",
+        "9",
+        "12",
+        "17",
+        "18",
+        "26",
+        "27",
+        "32",
+        "33",
+        "42",
+        "49",
+        "51",
+        "53",
+        "55",
+        "56",
+        "61",
+        "64",
+        "65",
+        "71",
+        "74",
+        "77",
+        "79",
+        "86",
+        "90",
+        "94",
+        "97",
+        "100",
+        "101",
+        "102"
+      ],
+      "cache_ram_cutoff_ist": "2026-10-12T20:23:00",
+      "rerun_evidence": {
+        "retries_exhausted_cli": [],
+        "rerun_evidence_file": "results\\rq1_analysis\\rerun_evidence.json",
+        "rerun_evidence_sha256": "9f73c3be1f44dabc47f2e3c57108fd9b89279afef3bc94e72dedbee6d3d09c47",
+        "source": "results/logs/rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638.log and results/logs/rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908.log: tau2 summary blocks ('Infra Errors N') at the end of each invocation and the following 'Resuming run from ...' lines. gpt-oss: 3 first-attempt infra errors (2026-10-12, Groq TPD; tasks 26, 27, 32 trial 2), each re-run once and valid. qwen3.8: 6 (2026-10-11, Groq TPD; tasks 12, 17, 18, 26, 27, 32 trial 2) and 3 (2026-10-24, Groq TPD; tasks 97, 100, 101 trial 2), each re-run once and valid. Compiled 2026-10-25.",
+        "pre_rerun_infra_errors": {
+          "gpt-oss-120b": 3,
+          "qwen3.8-27b": 9
+        },
+        "extra_attempts": {
+          "gpt-oss-120b": {
+            "26": 1,
+            "27": 1,
+            "32": 1
+          },
+          "qwen3.8-27b": {
+            "12": 1,
+            "17": 1,
+            "18": 1,
+            "26": 1,
+            "27": 1,
+            "32": 1,
+            "97": 1,
+            "100": 1,
+            "101": 1
+          }
+        }
+      }
+    },
+    "software": {
+      "python": "3.13.2",
+      "numpy": "2.5.4",
+      "pandas": "3.0.6",
+      "scipy": "1.18.1"
+    }
+  },
+  "protocol_warnings": [],
+  "data_status": {
+    "mode": "final",
+    "planned_tasks": [
+      "5",
+      "9",
+      "12",
+      "17",
+      "18",
+      "26",
+      "27",
+      "32",
+      "33",
+      "42",
+      "49",
+      "51",
+      "53",
+      "55",
+      "56",
+      "61",
+      "64",
+      "65",
+      "71",
+      "74",
+      "77",
+      "79",
+      "86",
+      "90",
+      "94",
+      "97",
+      "100",
+      "101",
+      "102"
+    ],
+    "n_planned": 29,
+    "repeats_per_cell": 3,
+    "analysed_tasks": [
+      "5",
+      "9",
+      "12",
+      "17",
+      "18",
+      "26",
+      "27",
+      "32",
+      "33",
+      "42",
+      "49",
+      "51",
+      "53",
+      "55",
+      "56",
+      "61",
+      "64",
+      "65",
+      "71",
+      "74",
+      "77",
+      "79",
+      "86",
+      "90",
+      "94",
+      "97",
+      "100",
+      "101",
+      "102"
+    ],
+    "n_analysed": 29,
+    "dropped_tasks": [],
+    "n_dropped": 0,
+    "deviation_too_many_dropped": false,
+    "pending_tasks": [],
+    "awaiting_rerun_tasks": [],
+    "infra_incomplete_tasks": [],
+    "extra_tasks_not_preregistered": [],
+    "complete_by_simulator": {
+      "gpt-oss-120b": [
+        "5",
+        "9",
+        "12",
+        "17",
+        "18",
+        "26",
+        "27",
+        "32",
+        "33",
+        "42",
+        "49",
+        "51",
+        "53",
+        "55",
+        "56",
+        "61",
+        "64",
+        "65",
+        "71",
+        "74",
+        "77",
+        "79",
+        "86",
+        "90",
+        "94",
+        "97",
+        "100",
+        "101",
+        "102"
+      ],
+      "qwen3.8-27b": [
+        "5",
+        "9",
+        "12",
+        "17",
+        "18",
+        "26",
+        "27",
+        "32",
+        "33",
+        "42",
+        "49",
+        "51",
+        "53",
+        "55",
+        "56",
+        "61",
+        "64",
+        "65",
+        "71",
+        "74",
+        "77",
+        "79",
+        "86",
+        "90",
+        "94",
+        "97",
+        "100",
+        "101",
+        "102"
+      ]
+    },
+    "retries_exhausted_ignored": [],
+    "extra_attempts_over_limit": [],
+    "per_task": [
+      {
+        "task_id": "5",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "9",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 2,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "12",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "17",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 2,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "18",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 1,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "26",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 2,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "27",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "32",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 1,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "33",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 1,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "42",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "49",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 1,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "51",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 2,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 1,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "53",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 2,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 2,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "55",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "56",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "61",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "64",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "65",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "71",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "74",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "77",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "79",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "86",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "90",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 2,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "94",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "97",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "100",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "101",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": 1
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      },
+      {
+        "task_id": "102",
+        "gpt-oss-120b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 0,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "qwen3.8-27b": {
+          "attempted": 3,
+          "infra": 0,
+          "valid": 3,
+          "successes": 3,
+          "cell": "complete",
+          "extra_attempts": null
+        },
+        "status": "complete",
+        "retries_exhausted_evidence": []
+      }
+    ],
+    "cells_with_extra_repeats_truncated": 0
+  },
+  "confirmatory": true,
+  "provisional_reasons": [],
+  "step1_conditions": {
+    "gpt-oss-120b": {
+      "file": {
+        "simulations": 87,
+        "infra_errors": 0,
+        "valid": 87,
+        "successes": 27,
+        "tasks": 29,
+        "termination_reasons": {
+          "user_stop": 87
+        },
+        "infra_breakdown": {},
+        "started_before_cutoff": 11,
+        "started_after_cutoff": 76,
+        "start_time_unknown": 0
+      },
+      "analysed_set": {
+        "simulations": 87,
+        "infra_errors": 0,
+        "valid": 87,
+        "successes": 27,
+        "tasks": 29,
+        "termination_reasons": {
+          "user_stop": 87
+        },
+        "infra_breakdown": {},
+        "started_before_cutoff": 11,
+        "started_after_cutoff": 76,
+        "start_time_unknown": 0
+      }
+    },
+    "qwen3.8-27b": {
+      "file": {
+        "simulations": 87,
+        "infra_errors": 0,
+        "valid": 87,
+        "successes": 49,
+        "tasks": 29,
+        "termination_reasons": {
+          "user_stop": 87
+        },
+        "infra_breakdown": {},
+        "started_before_cutoff": 18,
+        "started_after_cutoff": 69,
+        "start_time_unknown": 0
+      },
+      "analysed_set": {
+        "simulations": 87,
+        "infra_errors": 0,
+        "valid": 87,
+        "successes": 49,
+        "tasks": 29,
+        "termination_reasons": {
+          "user_stop": 87
+        },
+        "infra_breakdown": {},
+        "started_before_cutoff": 18,
+        "started_after_cutoff": 69,
+        "start_time_unknown": 0
+      }
+    }
+  },
+  "step1_pre_rerun_infra": {
+    "available": true,
+    "source": "results/logs/rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638.log and results/logs/rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908.log: tau2 summary blocks ('Infra Errors N') at the end of each invocation and the following 'Resuming run from ...' lines. gpt-oss: 3 first-attempt infra errors (2026-10-12, Groq TPD; tasks 26, 27, 32 trial 2), each re-run once and valid. qwen3.8: 6 (2026-10-11, Groq TPD; tasks 12, 17, 18, 26, 27, 32 trial 2) and 3 (2026-10-24, Groq TPD; tasks 97, 100, 101 trial 2), each re-run once and valid. Compiled 2026-10-25.",
+    "per_simulator": {
+      "gpt-oss-120b": {
+        "infra_errors_before_reruns": 3,
+        "simulations_in_file": 87,
+        "rate_before_reruns": 0.034482758620689655,
+        "infra_errors_in_file_now": 0
+      },
+      "qwen3.8-27b": {
+        "infra_errors_before_reruns": 9,
+        "simulations_in_file": 87,
+        "rate_before_reruns": 0.10344827586206896,
+        "infra_errors_in_file_now": 0
+      }
+    },
+    "note": "results.json cannot give these counts: tau2 --auto-resume deletes infra-error simulations before re-running them, so the file shows infra errors AFTER re-runs only.",
+    "rate_definition": "the rate divides by the (task, trial) simulations in the file, each first attempted once",
+    "logged_reference": null
+  },
+  "step8_failure_analysis": {
+    "status": "out of scope for this script",
+    "reason": "step 8 labels failures with LLM judges; this script makes no LLM calls",
+    "audit_dir": "results/audit/",
+    "audit_files": [
+      "audit_rq1_chunk1_raw.json",
+      "audit_rq1_chunk2_3_raw.json",
+      "failed_cases_rq1_chunk1.json",
+      "failed_cases_rq1_chunk2_3.json"
+    ]
+  },
+  "step2": {
+    "per_simulator": {
+      "gpt-oss-120b": {
+        "n_tasks": 29,
+        "pass^1": {
+          "estimate": 0.3103448275862069,
+          "ci_low": 0.1724137931034483,
+          "ci_high": 0.44827586206896547
+        },
+        "pass^2": {
+          "estimate": 0.20689655172413793,
+          "ci_low": 0.09195402298850575,
+          "ci_high": 0.33333333333333337
+        },
+        "pass^3": {
+          "estimate": 0.13793103448275862,
+          "ci_low": 0.034482758620689655,
+          "ci_high": 0.27586206896551724
+        }
+      },
+      "qwen3.8-27b": {
+        "n_tasks": 29,
+        "pass^1": {
+          "estimate": 0.5632183908045977,
+          "ci_low": 0.3908045977011494,
+          "ci_high": 0.735632183908046
+        },
+        "pass^2": {
+          "estimate": 0.528735632183908,
+          "ci_low": 0.3448275862068966,
+          "ci_high": 0.7011494252873564
+        },
+        "pass^3": {
+          "estimate": 0.5172413793103449,
+          "ci_low": 0.3448275862068966,
+          "ci_high": 0.6896551724137931
+        }
+      }
+    },
+    "paired_contrast": {
+      "direction": "gpt-oss-120b minus qwen3.8-27b",
+      "label": "exploratory (not in the RQ1 analysis plan)",
+      "pass^1": {
+        "estimate": -0.25287356321839083,
+        "ci_low": -0.4252873563218391,
+        "ci_high": -0.09195402298850576
+      },
+      "pass^3": {
+        "estimate": -0.3793103448275862,
+        "ci_low": -0.5517241379310345,
+        "ci_high": -0.20689655172413793
+      }
+    },
+    "mcnemar_majority": {
+      "label": "exploratory (not in the RQ1 analysis plan)",
+      "gptoss_fail_qwen_pass": 8,
+      "gptoss_pass_qwen_fail": 2,
+      "p_value": 0.109375
+    },
+    "per_task": {
+      "gpt-oss-120b": {
+        "5": [
+          false,
+          false,
+          false
+        ],
+        "9": [
+          true,
+          false,
+          true
+        ],
+        "12": [
+          true,
+          true,
+          true
+        ],
+        "17": [
+          true,
+          false,
+          true
+        ],
+        "18": [
+          false,
+          true,
+          false
+        ],
+        "26": [
+          true,
+          true,
+          false
+        ],
+        "27": [
+          false,
+          false,
+          false
+        ],
+        "32": [
+          false,
+          false,
+          false
+        ],
+        "33": [
+          true,
+          false,
+          false
+        ],
+        "42": [
+          false,
+          false,
+          false
+        ],
+        "49": [
+          false,
+          true,
+          false
+        ],
+        "51": [
+          false,
+          true,
+          true
+        ],
+        "53": [
+          false,
+          true,
+          true
+        ],
+        "55": [
+          false,
+          false,
+          false
+        ],
+        "56": [
+          false,
+          false,
+          false
+        ],
+        "61": [
+          true,
+          true,
+          true
+        ],
+        "64": [
+          false,
+          false,
+          false
+        ],
+        "65": [
+          true,
+          true,
+          true
+        ],
+        "71": [
+          false,
+          false,
+          false
+        ],
+        "74": [
+          false,
+          false,
+          false
+        ],
+        "77": [
+          true,
+          true,
+          true
+        ],
+        "79": [
+          false,
+          false,
+          false
+        ],
+        "86": [
+          false,
+          false,
+          false
+        ],
+        "90": [
+          true,
+          true,
+          false
+        ],
+        "94": [
+          false,
+          false,
+          false
+        ],
+        "97": [
+          false,
+          false,
+          false
+        ],
+        "100": [
+          false,
+          false,
+          false
+        ],
+        "101": [
+          false,
+          false,
+          false
+        ],
+        "102": [
+          false,
+          false,
+          false
+        ]
+      },
+      "qwen3.8-27b": {
+        "5": [
+          true,
+          true,
+          true
+        ],
+        "9": [
+          true,
+          true,
+          true
+        ],
+        "12": [
+          true,
+          true,
+          true
+        ],
+        "17": [
+          true,
+          true,
+          true
+        ],
+        "18": [
+          true,
+          true,
+          true
+        ],
+        "26": [
+          true,
+          true,
+          true
+        ],
+        "27": [
+          true,
+          true,
+          true
+        ],
+        "32": [
+          false,
+          true,
+          false
+        ],
+        "33": [
+          false,
+          false,
+          false
+        ],
+        "42": [
+          false,
+          false,
+          false
+        ],
+        "49": [
+          true,
+          true,
+          true
+        ],
+        "51": [
+          false,
+          false,
+          true
+        ],
+        "53": [
+          true,
+          true,
+          false
+        ],
+        "55": [
+          false,
+          false,
+          false
+        ],
+        "56": [
+          false,
+          false,
+          false
+        ],
+        "61": [
+          true,
+          true,
+          true
+        ],
+        "64": [
+          false,
+          false,
+          false
+        ],
+        "65": [
+          true,
+          true,
+          true
+        ],
+        "71": [
+          true,
+          true,
+          true
+        ],
+        "74": [
+          false,
+          false,
+          false
+        ],
+        "77": [
+          true,
+          true,
+          true
+        ],
+        "79": [
+          false,
+          false,
+          false
+        ],
+        "86": [
+          false,
+          false,
+          false
+        ],
+        "90": [
+          false,
+          false,
+          false
+        ],
+        "94": [
+          false,
+          false,
+          false
+        ],
+        "97": [
+          true,
+          true,
+          true
+        ],
+        "100": [
+          true,
+          true,
+          true
+        ],
+        "101": [
+          false,
+          false,
+          false
+        ],
+        "102": [
+          true,
+          true,
+          true
+        ]
+      }
+    }
+  },
+  "step3": {
+    "n_tasks": 29,
+    "n_simulators": 2,
+    "n_reps": 3,
+    "simulators": {
+      "groq/openai/gpt-oss-120b": "gpt-oss-120b",
+      "groq/qwen/qwen3.8-27b": "qwen3.8-27b"
+    },
+    "p_bar": {
+      "estimate": 0.4367816091954023,
+      "ci_low": 0.3045977011494253,
+      "ci_high": 0.5689655172413793
+    },
+    "components": {
+      "task": {
+        "raw": 0.08087027914614121,
+        "ci_low": 0.02079912424740012,
+        "ci_high": 0.13519430760810072,
+        "frac_boot_nonpositive": 0.0027,
+        "ci_excludes_zero": true,
+        "truncated": 0.08087027914614121,
+        "share_truncated": 0.3054263565891473,
+        "share_truncated_ci_low": 0.07998724239450453,
+        "share_truncated_ci_high": 0.531823686434564,
+        "share_untruncated": 0.3054263565891473,
+        "share_untruncated_ci_low": 0.07998724239450453,
+        "share_untruncated_ci_high": 0.531823686434564
+      },
+      "simulator": {
+        "raw": 0.02818828680897645,
+        "ci_low": 0.000821018062397374,
+        "ci_high": 0.08620689655172412,
+        "frac_boot_nonpositive": 0.0183,
+        "ci_excludes_zero": true,
+        "truncated": 0.02818828680897645,
+        "share_truncated": 0.1064599483204134,
+        "share_truncated_ci_low": 0.003241316342444765,
+        "share_truncated_ci_high": 0.2929471609070129,
+        "share_untruncated": 0.1064599483204134,
+        "share_untruncated_ci_low": 0.003241316342444765,
+        "share_untruncated_ci_high": 0.2930997527242291,
+        "note": "reported, not interpreted: with S = 2 simulators the task bootstrap treats them as fixed and this interval under-covers (PREREGISTRATION section 7 step 3)"
+      },
+      "task_x_simulator": {
+        "raw": 0.08675424192665575,
+        "ci_low": 0.03612137383689107,
+        "ci_high": 0.12889983579638753,
+        "frac_boot_nonpositive": 0.0001,
+        "ci_excludes_zero": true,
+        "truncated": 0.08675424192665575,
+        "share_truncated": 0.32764857881136966,
+        "share_truncated_ci_low": 0.14212083652415783,
+        "share_truncated_ci_high": 0.49630441147921134,
+        "share_untruncated": 0.32764857881136966,
+        "share_untruncated_ci_low": 0.14212083652415783,
+        "share_untruncated_ci_high": 0.4964748092307895
+      },
+      "residual": {
+        "raw": 0.06896551724137931,
+        "ci_low": 0.034482758620689655,
+        "ci_high": 0.10919540229885058,
+        "frac_boot_nonpositive": 0.0,
+        "ci_excludes_zero": true,
+        "truncated": 0.06896551724137931,
+        "share_truncated": 0.26046511627906976,
+        "share_truncated_ci_low": 0.1263157894736842,
+        "share_truncated_ci_high": 0.42178114644715325,
+        "share_untruncated": 0.26046511627906976,
+        "share_untruncated_ci_low": 0.12631578947368421,
+        "share_untruncated_ci_high": 0.42178114644715325
+      }
+    },
+    "sum_of_raw_components": 0.26477832512315275,
+    "p_bar_times_1_minus_p_bar": 0.24600343506407715,
+    "cell_flip_rate": {
+      "estimate": 0.20689655172413793,
+      "ci_low": 0.10344827586206896,
+      "ci_high": 0.3275862068965517
+    },
+    "flip_rate_mixed_tasks": 0.3333333333333333,
+    "within_cell_disagreement": {
+      "estimate": 0.13793103448275862,
+      "ci_low": 0.06896551724137931,
+      "ci_high": 0.21839080459770113
+    },
+    "between_simulator_disagreement": {
+      "estimate": 0.36781609195402304,
+      "ci_low": 0.23371647509578544,
+      "ci_high": 0.5134099616858238
+    },
+    "excess_between_disagreement": {
+      "estimate": 0.22988505747126442,
+      "ci_low": 0.08812260536398475,
+      "ci_high": 0.3869731800766284
+    },
+    "simulator_means": {
+      "gpt-oss-120b": 0.3103448275862069,
+      "qwen3.8-27b": 0.5632183908045977
+    },
+    "flip_rate_by_task": {
+      "5": 0.0,
+      "9": 0.5,
+      "12": 0.0,
+      "17": 0.5,
+      "18": 0.5,
+      "26": 0.5,
+      "27": 0.0,
+      "32": 0.5,
+      "33": 0.5,
+      "42": 0.0,
+      "49": 0.5,
+      "51": 1.0,
+      "53": 1.0,
+      "55": 0.0,
+      "56": 0.0,
+      "61": 0.0,
+      "64": 0.0,
+      "65": 0.0,
+      "71": 0.0,
+      "74": 0.0,
+      "77": 0.0,
+      "79": 0.0,
+      "86": 0.0,
+      "90": 0.5,
+      "94": 0.0,
+      "97": 0.0,
+      "100": 0.0,
+      "101": 0.0,
+      "102": 0.0
+    },
+    "labels": {
+      "excess_between_disagreement": "exploratory (not in the RQ1 analysis plan)",
+      "flip_rate_mixed_tasks": "exploratory (not in the RQ1 analysis plan)"
+    }
+  },
+  "decisions": {
+    "H1a": {
+      "hypothesis": "H1a",
+      "estimand": "residual (re-run) component E[p(1-p)]",
+      "rule": "lower bound of the 95% task-bootstrap CI > 0",
+      "estimate": 0.06896551724137931,
+      "ci_low": 0.034482758620689655,
+      "ci_high": 0.10919540229885058,
+      "supported": true,
+      "verdict": "SUPPORTED",
+      "reason": "lower bound 0.0345 > 0"
+    },
+    "H1b": {
+      "hypothesis": "H1b",
+      "estimand": "task_x_simulator component",
+      "rule": "lower bound of the 95% task-bootstrap CI > 0",
+      "estimate": 0.08675424192665575,
+      "ci_low": 0.03612137383689107,
+      "ci_high": 0.12889983579638753,
+      "supported": true,
+      "verdict": "SUPPORTED",
+      "reason": "lower bound 0.0361 > 0"
+    }
+  },
+  "section11": {
+    "rule": "p_bar < 0.1 or > 0.9 in an arm: components are floor- or ceiling-limited; shares are reported but flagged as uninformative",
+    "pooled_p_bar": 0.4367816091954023,
+    "pooled_outside": false,
+    "arms": {
+      "gpt-oss-120b": {
+        "p_bar": 0.3103448275862069,
+        "outside": false
+      },
+      "qwen3.8-27b": {
+        "p_bar": 0.5632183908045977,
+        "outside": false
+      }
+    },
+    "shares_flagged_uninformative": false
+  },
+  "step5": {
+    "simulator": "gpt-oss-120b",
+    "n_eval_tasks": 29,
+    "trials_per_run_3": {
+      "residual": {
+        "estimate": 0.10344827586206896,
+        "ci_low": 0.04597701149425288,
+        "ci_high": 0.16091954022988506
+      },
+      "sd_diff": {
+        "estimate": 0.04876598490941707,
+        "ci_low": 0.03251065660627805,
+        "ci_high": 0.060821869219875646
+      },
+      "expected_abs_diff": {
+        "estimate": 0.0389096264515694,
+        "ci_low": 0.025939750967712935,
+        "ci_high": 0.048528830409709796
+      },
+      "band_95": {
+        "estimate": 0.09557957409308122,
+        "ci_low": 0.06371971606205415,
+        "ci_high": 0.11920867314336155
+      },
+      "level": 0.95
+    },
+    "trials_per_run_1": {
+      "residual": {
+        "estimate": 0.10344827586206896,
+        "ci_low": 0.04597701149425288,
+        "ci_high": 0.16091954022988506
+      },
+      "sd_diff": {
+        "estimate": 0.08446516354424752,
+        "ci_low": 0.05631010902949835,
+        "ci_high": 0.10534656770013424
+      },
+      "expected_abs_diff": {
+        "estimate": 0.06739344991764414,
+        "ci_low": 0.04492896661176276,
+        "ci_high": 0.08405439990151094
+      },
+      "band_95": {
+        "estimate": 0.16554867849501068,
+        "ci_low": 0.11036578566334046,
+        "ci_high": 0.20647547858717366
+      },
+      "level": 0.95
+    }
+  },
+  "section12": {
+    "label": "descriptive (section 12 sensitivity analysis)",
+    "variant_note": "The deviation entry asks for a before/after comparison of the residual but does not fix how. The three variants here (pair level, within mixed cells, cell level) were chosen after RQ1 data collection began; none is primary.",
+    "cutoff_ist": "2026-10-12T20:23:00",
+    "cells_with_unknown_start_time": 0,
+    "pair_level": {
+      "before_before": {
+        "n_pairs": 15,
+        "n_disagreeing": 2,
+        "n_tasks": 8,
+        "residual": {
+          "estimate": 0.06666666666666667,
+          "ci_low": 0.0,
+          "ci_high": 0.16666666666666666,
+          "n_boot_undefined": 1
+        },
+        "few_tasks": false
+      },
+      "after_after": {
+        "n_pairs": 131,
+        "n_disagreeing": 17,
+        "n_tasks": 26,
+        "residual": {
+          "estimate": 0.0648854961832061,
+          "ci_low": 0.023809523809523808,
+          "ci_high": 0.11570247933884298,
+          "n_boot_undefined": 0
+        },
+        "few_tasks": false
+      },
+      "cross": {
+        "n_pairs": 28,
+        "n_disagreeing": 5,
+        "n_tasks": 8,
+        "residual": {
+          "estimate": 0.08928571428571429,
+          "ci_low": 0.03571428571428571,
+          "ci_high": 0.1388888888888889,
+          "n_boot_undefined": 1
+        },
+        "few_tasks": false
+      },
+      "after_after_minus_before_before": {
+        "estimate": -0.0017811704834605618,
+        "ci_low": -0.11737191263523168,
+        "ci_high": 0.08880831212892275,
+        "n_boot_undefined": 1
+      }
+    },
+    "within_mixed_cells": {
+      "same_period": {
+        "n_pairs": 14,
+        "n_disagreeing": 5,
+        "n_tasks": 8,
+        "residual": {
+          "estimate": 0.17857142857142858,
+          "ci_low": 0.07142857142857142,
+          "ci_high": 0.2777777777777778,
+          "n_boot_undefined": 1
+        }
+      },
+      "cross": {
+        "n_pairs": 28,
+        "n_disagreeing": 5,
+        "n_tasks": 8,
+        "residual": {
+          "estimate": 0.08928571428571429,
+          "ci_low": 0.03571428571428571,
+          "ci_high": 0.1388888888888889,
+          "n_boot_undefined": 1
+        }
+      },
+      "cross_minus_same_period": {
+        "estimate": -0.08928571428571429,
+        "ci_low": -0.1388888888888889,
+        "ci_high": -0.03571428571428571,
+        "n_boot_undefined": 1
+      }
+    },
+    "cell_level": {
+      "before": {
+        "n_cells": 2,
+        "n_tasks": 2,
+        "residual": {
+          "estimate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "n_boot_undefined": 1290
+        },
+        "cell_flip_rate": {
+          "estimate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "n_boot_undefined": 1290
+        },
+        "p_bar": {
+          "estimate": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0,
+          "n_boot_undefined": 1290
+        },
+        "few_tasks": true,
+        "p_bar_outside": true
+      },
+      "after": {
+        "n_cells": 42,
+        "n_tasks": 21,
+        "residual": {
+          "estimate": 0.05555555555555556,
+          "ci_low": 0.015151515151515154,
+          "ci_high": 0.1052830940988833,
+          "n_boot_undefined": 0
+        },
+        "cell_flip_rate": {
+          "estimate": 0.16666666666666666,
+          "ci_low": 0.045454545454545456,
+          "ci_high": 0.3158492822966498,
+          "n_boot_undefined": 0
+        },
+        "p_bar": {
+          "estimate": 0.3492063492063492,
+          "ci_low": 0.2,
+          "ci_high": 0.5075847763347762,
+          "n_boot_undefined": 0
+        },
+        "few_tasks": false,
+        "p_bar_outside": false
+      },
+      "mixed": {
+        "n_cells": 14,
+        "n_tasks": 8,
+        "residual": {
+          "estimate": 0.11904761904761907,
+          "ci_low": 0.04761904761904762,
+          "ci_high": 0.18518518518518523,
+          "n_boot_undefined": 1
+        },
+        "cell_flip_rate": {
+          "estimate": 0.35714285714285715,
+          "ci_low": 0.14285714285714285,
+          "ci_high": 0.5555555555555556,
+          "n_boot_undefined": 1
+        },
+        "p_bar": {
+          "estimate": 0.6190476190476191,
+          "ci_low": 0.375,
+          "ci_high": 0.8222222222222222,
+          "n_boot_undefined": 1
+        },
+        "few_tasks": false,
+        "p_bar_outside": false
+      },
+      "after_minus_before": {
+        "residual": {
+          "estimate": 0.05555555555555556,
+          "ci_low": 0.015151515151515154,
+          "ci_high": 0.10526315789473686,
+          "n_boot_undefined": 1290
+        },
+        "cell_flip_rate": {
+          "estimate": 0.16666666666666666,
+          "ci_low": 0.045454545454545456,
+          "ci_high": 0.3157894736842105,
+          "n_boot_undefined": 1290
+        }
+      }
+    },
+    "composition": {
+      "cells": [
+        {
+          "class": "before",
+          "simulator": "gpt-oss-120b",
+          "n_cells": 0,
+          "tasks": []
+        },
+        {
+          "class": "before",
+          "simulator": "qwen3.8-27b",
+          "n_cells": 2,
+          "tasks": [
+            "5",
+            "9"
+          ]
+        },
+        {
+          "class": "after",
+          "simulator": "gpt-oss-120b",
+          "n_cells": 21,
+          "tasks": [
+            "33",
+            "42",
+            "49",
+            "51",
+            "53",
+            "55",
+            "56",
+            "61",
+            "64",
+            "65",
+            "71",
+            "74",
+            "77",
+            "79",
+            "86",
+            "90",
+            "94",
+            "97",
+            "100",
+            "101",
+            "102"
+          ]
+        },
+        {
+          "class": "after",
+          "simulator": "qwen3.8-27b",
+          "n_cells": 21,
+          "tasks": [
+            "33",
+            "42",
+            "49",
+            "51",
+            "53",
+            "55",
+            "56",
+            "61",
+            "64",
+            "65",
+            "71",
+            "74",
+            "77",
+            "79",
+            "86",
+            "90",
+            "94",
+            "97",
+            "100",
+            "101",
+            "102"
+          ]
+        },
+        {
+          "class": "mixed",
+          "simulator": "gpt-oss-120b",
+          "n_cells": 8,
+          "tasks": [
+            "5",
+            "9",
+            "12",
+            "17",
+            "18",
+            "26",
+            "27",
+            "32"
+          ]
+        },
+        {
+          "class": "mixed",
+          "simulator": "qwen3.8-27b",
+          "n_cells": 6,
+          "tasks": [
+            "12",
+            "17",
+            "18",
+            "26",
+            "27",
+            "32"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "class": "before_before",
+          "simulator": "gpt-oss-120b",
+          "n_pairs": 3,
+          "n_disagreeing": 1,
+          "residual": 0.16666666666666666
+        },
+        {
+          "class": "before_before",
+          "simulator": "qwen3.8-27b",
+          "n_pairs": 12,
+          "n_disagreeing": 1,
+          "residual": 0.041666666666666664
+        },
+        {
+          "class": "after_after",
+          "simulator": "gpt-oss-120b",
+          "n_pairs": 68,
+          "n_disagreeing": 13,
+          "residual": 0.09558823529411764
+        },
+        {
+          "class": "after_after",
+          "simulator": "qwen3.8-27b",
+          "n_pairs": 63,
+          "n_disagreeing": 4,
+          "residual": 0.031746031746031744
+        },
+        {
+          "class": "cross",
+          "simulator": "gpt-oss-120b",
+          "n_pairs": 16,
+          "n_disagreeing": 4,
+          "residual": 0.125
+        },
+        {
+          "class": "cross",
+          "simulator": "qwen3.8-27b",
+          "n_pairs": 12,
+          "n_disagreeing": 1,
+          "residual": 0.041666666666666664
+        }
+      ],
+      "simulations": {
+        "gpt-oss-120b": {
+          "before": 11,
+          "after": 76,
+          "unknown": 0
+        },
+        "qwen3.8-27b": {
+          "before": 18,
+          "after": 69,
+          "unknown": 0
+        }
+      }
+    },
+    "tasks_with_runs_before_cutoff": {
+      "gpt-oss-120b": [
+        "5",
+        "9",
+        "12",
+        "17",
+        "18",
+        "26",
+        "27",
+        "32"
+      ],
+      "qwen3.8-27b": [
+        "5",
+        "9",
+        "12",
+        "17",
+        "18",
+        "26",
+        "27",
+        "32"
+      ]
+    },
+    "confound_note": "The period is not randomised: simulations before the change are the earliest runs (the first task chunk and, for each simulator, the first trials), and the after period holds all later tasks and calendar days. Period is therefore confounded with task, simulator mix, trial index and time (e.g. drift in the hosted simulator). Differences are descriptive and cannot be attributed to --cache-ram."
+  },
+  "h1c": {
+    "label": "exploratory (H1c)",
+    "module": "whose_noise.divergence",
+    "status": "ok",
+    "n_pairs": 174,
+    "n_tasks": 29,
+    "summary": [
+      {
+        "subset": "all",
+        "group": "gpt-oss-120b",
+        "n_tasks": 29,
+        "n_pairs": 87,
+        "n_identical": 0,
+        "n_diverging": 87,
+        "n_user": 81,
+        "n_assistant": 6,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.9310344827586207,
+        "share_user_ci_low": 0.8620689655172413,
+        "share_user_ci_high": 0.9770114942528736,
+        "share_agent": 0.06896551724137931,
+        "share_agent_ci_low": 0.022988505747126436,
+        "share_agent_ci_high": 0.13793103448275862,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "all",
+        "group": "qwen3.8-27b",
+        "n_tasks": 29,
+        "n_pairs": 87,
+        "n_identical": 26,
+        "n_diverging": 61,
+        "n_user": 25,
+        "n_assistant": 36,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.4098360655737705,
+        "share_user_ci_low": 0.21818181818181817,
+        "share_user_ci_high": 0.5915564817476285,
+        "share_agent": 0.5901639344262295,
+        "share_agent_ci_low": 0.4084435182523714,
+        "share_agent_ci_high": 0.7818181818181819,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "all",
+        "group": "pooled",
+        "n_tasks": 29,
+        "n_pairs": 174,
+        "n_identical": 26,
+        "n_diverging": 148,
+        "n_user": 106,
+        "n_assistant": 42,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.7162162162162162,
+        "share_user_ci_low": 0.64,
+        "share_user_ci_high": 0.7947062319578875,
+        "share_agent": 0.28378378378378377,
+        "share_agent_ci_low": 0.2052937680421124,
+        "share_agent_ci_high": 0.36,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "gpt-oss-120b",
+        "n_tasks": 9,
+        "n_pairs": 18,
+        "n_identical": 0,
+        "n_diverging": 18,
+        "n_user": 16,
+        "n_assistant": 2,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.8888888888888888,
+        "share_user_ci_low": 0.7272727272727273,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.1111111111111111,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.2727272727272727,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "qwen3.8-27b",
+        "n_tasks": 3,
+        "n_pairs": 6,
+        "n_identical": 0,
+        "n_diverging": 6,
+        "n_user": 3,
+        "n_assistant": 3,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.5,
+        "share_user_ci_low": 0.0,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.5,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 1.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 387,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "pooled",
+        "n_tasks": 10,
+        "n_pairs": 24,
+        "n_identical": 0,
+        "n_diverging": 24,
+        "n_user": 19,
+        "n_assistant": 5,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.7916666666666666,
+        "share_user_ci_low": 0.5714285714285714,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.20833333333333334,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.42857142857142855,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      }
+    ],
+    "by_period_class": [
+      {
+        "subset": "all",
+        "group": "gpt-oss-120b | after_after",
+        "n_tasks": 26,
+        "n_pairs": 68,
+        "n_identical": 0,
+        "n_diverging": 68,
+        "n_user": 63,
+        "n_assistant": 5,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.9264705882352942,
+        "share_user_ci_low": 0.8507462686567164,
+        "share_user_ci_high": 0.9855072463768116,
+        "share_agent": 0.07352941176470588,
+        "share_agent_ci_low": 0.014492753623188406,
+        "share_agent_ci_high": 0.14925373134328357,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "gpt-oss-120b",
+        "period_class": "after_after"
+      },
+      {
+        "subset": "all",
+        "group": "gpt-oss-120b | before_before",
+        "n_tasks": 3,
+        "n_pairs": 3,
+        "n_identical": 0,
+        "n_diverging": 3,
+        "n_user": 2,
+        "n_assistant": 1,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.6666666666666666,
+        "share_user_ci_low": 0.0,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.3333333333333333,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 1.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 436,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "gpt-oss-120b",
+        "period_class": "before_before"
+      },
+      {
+        "subset": "all",
+        "group": "gpt-oss-120b | cross",
+        "n_tasks": 8,
+        "n_pairs": 16,
+        "n_identical": 0,
+        "n_diverging": 16,
+        "n_user": 16,
+        "n_assistant": 0,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 1.0,
+        "share_user_ci_low": 1.0,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.0,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 1,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "gpt-oss-120b",
+        "period_class": "cross"
+      },
+      {
+        "subset": "all",
+        "group": "qwen3.8-27b | after_after",
+        "n_tasks": 21,
+        "n_pairs": 63,
+        "n_identical": 21,
+        "n_diverging": 42,
+        "n_user": 25,
+        "n_assistant": 17,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.5952380952380952,
+        "share_user_ci_low": 0.3658419324577861,
+        "share_user_ci_high": 0.8043478260869565,
+        "share_agent": 0.40476190476190477,
+        "share_agent_ci_low": 0.1956521739130435,
+        "share_agent_ci_high": 0.6341580675422137,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "qwen3.8-27b",
+        "period_class": "after_after"
+      },
+      {
+        "subset": "all",
+        "group": "qwen3.8-27b | before_before",
+        "n_tasks": 8,
+        "n_pairs": 12,
+        "n_identical": 4,
+        "n_diverging": 8,
+        "n_user": 0,
+        "n_assistant": 8,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.0,
+        "share_user_ci_low": 0.0,
+        "share_user_ci_high": 0.0,
+        "share_agent": 1.0,
+        "share_agent_ci_low": 1.0,
+        "share_agent_ci_high": 1.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 22,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "qwen3.8-27b",
+        "period_class": "before_before"
+      },
+      {
+        "subset": "all",
+        "group": "qwen3.8-27b | cross",
+        "n_tasks": 6,
+        "n_pairs": 12,
+        "n_identical": 1,
+        "n_diverging": 11,
+        "n_user": 0,
+        "n_assistant": 11,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.0,
+        "share_user_ci_low": 0.0,
+        "share_user_ci_high": 0.0,
+        "share_agent": 1.0,
+        "share_agent_ci_low": 1.0,
+        "share_agent_ci_high": 1.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 14,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "qwen3.8-27b",
+        "period_class": "cross"
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "gpt-oss-120b | after_after",
+        "n_tasks": 8,
+        "n_pairs": 13,
+        "n_identical": 0,
+        "n_diverging": 13,
+        "n_user": 11,
+        "n_assistant": 2,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.8461538461538461,
+        "share_user_ci_low": 0.6666666666666666,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.15384615384615385,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.3333333333333333,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "gpt-oss-120b",
+        "period_class": "after_after"
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "gpt-oss-120b | before_before",
+        "n_tasks": 1,
+        "n_pairs": 1,
+        "n_identical": 0,
+        "n_diverging": 1,
+        "n_user": 1,
+        "n_assistant": 0,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 1.0,
+        "share_user_ci_low": 1.0,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.0,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 3587,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "gpt-oss-120b",
+        "period_class": "before_before"
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "gpt-oss-120b | cross",
+        "n_tasks": 4,
+        "n_pairs": 4,
+        "n_identical": 0,
+        "n_diverging": 4,
+        "n_user": 4,
+        "n_assistant": 0,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 1.0,
+        "share_user_ci_low": 1.0,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.0,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 137,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "gpt-oss-120b",
+        "period_class": "cross"
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "qwen3.8-27b | after_after",
+        "n_tasks": 2,
+        "n_pairs": 4,
+        "n_identical": 0,
+        "n_diverging": 4,
+        "n_user": 3,
+        "n_assistant": 1,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.75,
+        "share_user_ci_low": 0.5,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.25,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.5,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 1248,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "qwen3.8-27b",
+        "period_class": "after_after"
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "qwen3.8-27b | before_before",
+        "n_tasks": 1,
+        "n_pairs": 1,
+        "n_identical": 0,
+        "n_diverging": 1,
+        "n_user": 0,
+        "n_assistant": 1,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.0,
+        "share_user_ci_low": 0.0,
+        "share_user_ci_high": 0.0,
+        "share_agent": 1.0,
+        "share_agent_ci_low": 1.0,
+        "share_agent_ci_high": 1.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 3542,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "qwen3.8-27b",
+        "period_class": "before_before"
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "qwen3.8-27b | cross",
+        "n_tasks": 1,
+        "n_pairs": 1,
+        "n_identical": 0,
+        "n_diverging": 1,
+        "n_user": 0,
+        "n_assistant": 1,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.0,
+        "share_user_ci_low": 0.0,
+        "share_user_ci_high": 0.0,
+        "share_agent": 1.0,
+        "share_agent_ci_low": 1.0,
+        "share_agent_ci_high": 1.0,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 3542,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05,
+        "simulator": "qwen3.8-27b",
+        "period_class": "cross"
+      }
+    ],
+    "after_after_only": [
+      {
+        "subset": "all",
+        "group": "gpt-oss-120b",
+        "n_tasks": 26,
+        "n_pairs": 68,
+        "n_identical": 0,
+        "n_diverging": 68,
+        "n_user": 63,
+        "n_assistant": 5,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.9264705882352942,
+        "share_user_ci_low": 0.8484848484848485,
+        "share_user_ci_high": 0.9857142857142858,
+        "share_agent": 0.07352941176470588,
+        "share_agent_ci_low": 0.014285714285714285,
+        "share_agent_ci_high": 0.15151515151515152,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "all",
+        "group": "qwen3.8-27b",
+        "n_tasks": 21,
+        "n_pairs": 63,
+        "n_identical": 21,
+        "n_diverging": 42,
+        "n_user": 25,
+        "n_assistant": 17,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.5952380952380952,
+        "share_user_ci_low": 0.36363636363636365,
+        "share_user_ci_high": 0.8,
+        "share_agent": 0.40476190476190477,
+        "share_agent_ci_low": 0.2,
+        "share_agent_ci_high": 0.6363636363636364,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "all",
+        "group": "pooled",
+        "n_tasks": 26,
+        "n_pairs": 131,
+        "n_identical": 21,
+        "n_diverging": 110,
+        "n_user": 88,
+        "n_assistant": 22,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.8,
+        "share_user_ci_low": 0.7131767060617614,
+        "share_user_ci_high": 0.885424107142857,
+        "share_agent": 0.2,
+        "share_agent_ci_low": 0.11457589285714286,
+        "share_agent_ci_high": 0.28682329393823863,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 0,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "gpt-oss-120b",
+        "n_tasks": 8,
+        "n_pairs": 13,
+        "n_identical": 0,
+        "n_diverging": 13,
+        "n_user": 11,
+        "n_assistant": 2,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.8461538461538461,
+        "share_user_ci_low": 0.6666666666666666,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.15384615384615385,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.3333333333333333,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 3,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "qwen3.8-27b",
+        "n_tasks": 2,
+        "n_pairs": 4,
+        "n_identical": 0,
+        "n_diverging": 4,
+        "n_user": 3,
+        "n_assistant": 1,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.75,
+        "share_user_ci_low": 0.5,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.25,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.5,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 1241,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      },
+      {
+        "subset": "verdict_differs",
+        "group": "pooled",
+        "n_tasks": 8,
+        "n_pairs": 17,
+        "n_identical": 0,
+        "n_diverging": 17,
+        "n_user": 14,
+        "n_assistant": 3,
+        "n_tool": 0,
+        "n_length": 0,
+        "n_other": 0,
+        "share_user": 0.8235294117647058,
+        "share_user_ci_low": 0.625,
+        "share_user_ci_high": 1.0,
+        "share_agent": 0.17647058823529413,
+        "share_agent_ci_low": 0.0,
+        "share_agent_ci_high": 0.375,
+        "share_tool": 0.0,
+        "share_tool_ci_low": 0.0,
+        "share_tool_ci_high": 0.0,
+        "share_length": 0.0,
+        "share_length_ci_low": 0.0,
+        "share_length_ci_high": 0.0,
+        "n_boot_undefined": 3,
+        "n_boot": 10000,
+        "seed": 20261011,
+        "alpha": 0.05
+      }
+    ],
+    "period_tasks": {
+      "gpt-oss-120b": {
+        "before_before": [
+          "5",
+          "9",
+          "12"
+        ],
+        "after_after": [
+          "17",
+          "18",
+          "26",
+          "27",
+          "32",
+          "33",
+          "42",
+          "49",
+          "51",
+          "53",
+          "55",
+          "56",
+          "61",
+          "64",
+          "65",
+          "71",
+          "74",
+          "77",
+          "79",
+          "86",
+          "90",
+          "94",
+          "97",
+          "100",
+          "101",
+          "102"
+        ],
+        "cross": [
+          "5",
+          "9",
+          "12",
+          "17",
+          "18",
+          "26",
+          "27",
+          "32"
+        ],
+        "unknown": [],
+        "without_after_after": [
+          "5",
+          "9",
+          "12"
+        ]
+      },
+      "qwen3.8-27b": {
+        "before_before": [
+          "5",
+          "9",
+          "12",
+          "17",
+          "18",
+          "26",
+          "27",
+          "32"
+        ],
+        "after_after": [
+          "33",
+          "42",
+          "49",
+          "51",
+          "53",
+          "55",
+          "56",
+          "61",
+          "64",
+          "65",
+          "71",
+          "74",
+          "77",
+          "79",
+          "86",
+          "90",
+          "94",
+          "97",
+          "100",
+          "101",
+          "102"
+        ],
+        "cross": [
+          "12",
+          "17",
+          "18",
+          "26",
+          "27",
+          "32"
+        ],
+        "unknown": [],
+        "without_after_after": [
+          "5",
+          "9",
+          "12",
+          "17",
+          "18",
+          "26",
+          "27",
+          "32"
+        ]
+      }
+    },
+    "period_note": "Pair classes by the start times of the two repeats around the section 12 cutoff. A cross pair compares two llama-server setups (prompt-cache restores can change the agent's floating-point results), not two re-runs under one setup. Period is confounded with task chunk, trial order and calendar date, so the split is descriptive.",
+    "context": {
+      "gpt-oss-120b": {
+        "generations": {
+          "agent": {
+            "identical_input_generations": 44,
+            "first_divergences": 6,
+            "rate": 0.13636363636363635
+          },
+          "user": {
+            "identical_input_generations": 106,
+            "first_divergences": 81,
+            "rate": 0.7641509433962265
+          }
+        },
+        "n_diverging": 87,
+        "n_diverging_before_any_agent_generation": 68,
+        "divergence_index": {
+          "assistant": {
+            "2": 5,
+            "14": 1
+          },
+          "user": {
+            "1": 68,
+            "3": 8,
+            "9": 1,
+            "11": 4
+          }
+        }
+      },
+      "qwen3.8-27b": {
+        "generations": {
+          "agent": {
+            "identical_input_generations": 600,
+            "first_divergences": 36,
+            "rate": 0.06
+          },
+          "user": {
+            "identical_input_generations": 344,
+            "first_divergences": 25,
+            "rate": 0.07267441860465117
+          }
+        },
+        "n_diverging": 61,
+        "n_diverging_before_any_agent_generation": 12,
+        "divergence_index": {
+          "assistant": {
+            "2": 12,
+            "6": 2,
+            "8": 2,
+            "10": 6,
+            "12": 7,
+            "14": 4,
+            "16": 1,
+            "22": 2
+          },
+          "user": {
+            "1": 12,
+            "3": 2,
+            "9": 3,
+            "13": 2,
+            "17": 2,
+            "19": 2,
+            "21": 1,
+            "23": 1
+          }
+        }
+      },
+      "pooled": {
+        "generations": {
+          "agent": {
+            "identical_input_generations": 644,
+            "first_divergences": 42,
+            "rate": 0.06521739130434782
+          },
+          "user": {
+            "identical_input_generations": 450,
+            "first_divergences": 106,
+            "rate": 0.23555555555555555
+          }
+        },
+        "n_diverging": 148,
+        "n_diverging_before_any_agent_generation": 80,
+        "divergence_index": {
+          "assistant": {
+            "2": 17,
+            "6": 2,
+            "8": 2,
+            "10": 6,
+            "12": 7,
+            "14": 5,
+            "16": 1,
+            "22": 2
+          },
+          "user": {
+            "1": 80,
+            "3": 10,
+            "9": 4,
+            "11": 4,
+            "13": 2,
+            "17": 2,
+            "19": 2,
+            "21": 1,
+            "23": 1
+          }
+        }
+      }
+    },
+    "tool_divergences": [],
+    "warnings": []
+  },
+  "fidelity": {
+    "label": "exploratory (deterministic transcript checks, analyze --fidelity logic)",
+    "status": "ok",
+    "analysed_tasks": {
+      "gpt-oss-120b": {
+        "summary": [
+          {
+            "run_name": "rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638",
+            "outcome": "pass",
+            "sims": 27,
+            "unmatched": 0,
+            "premature_stop": 0,
+            "premature_stop_rate": 0.0,
+            "stop_after_unexecuted_confirmation": 0,
+            "stop_after_unexecuted_confirmation_rate": 0.0,
+            "transfer_requested_by_customer": 4,
+            "transfer_requested_by_customer_rate": 0.14814814814814814,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 6.0,
+            "mean_agent_turns": 6.037037037037037
+          },
+          {
+            "run_name": "rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638",
+            "outcome": "fail",
+            "sims": 60,
+            "unmatched": 0,
+            "premature_stop": 11,
+            "premature_stop_rate": 0.18333333333333332,
+            "stop_after_unexecuted_confirmation": 12,
+            "stop_after_unexecuted_confirmation_rate": 0.2,
+            "transfer_requested_by_customer": 7,
+            "transfer_requested_by_customer_rate": 0.11666666666666667,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 6.933333333333334,
+            "mean_agent_turns": 7.216666666666667
+          },
+          {
+            "run_name": "rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638",
+            "outcome": "all",
+            "sims": 87,
+            "unmatched": 0,
+            "premature_stop": 11,
+            "premature_stop_rate": 0.12643678160919541,
+            "stop_after_unexecuted_confirmation": 12,
+            "stop_after_unexecuted_confirmation_rate": 0.13793103448275862,
+            "transfer_requested_by_customer": 11,
+            "transfer_requested_by_customer_rate": 0.12643678160919541,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 6.64367816091954,
+            "mean_agent_turns": 6.850574712643678
+          }
+        ],
+        "text": "counts (rate) per outcome; infra errors excluded; deterministic transcript checks (whose_noise.fidelity)\ntext_input_style: none recorded; leak script: n/a (no language-pack style)\noutcome  sims premature_stop stop_after_unexec_confirm customer_asks_transfer script_leakage leak_share customer_turns agent_turns\n   pass    27       0 (0.00)                  0 (0.00)               4 (0.15)              -        n/a            6.0         6.0\n   fail    60      11 (0.18)                 12 (0.20)               7 (0.12)              -        n/a            6.9         7.2\n    all    87      11 (0.13)                 12 (0.14)              11 (0.13)              -        n/a            6.6         6.9\npremature_stop: task 9 trial 1 (fail), task 18 trial 0 (fail), task 26 trial 2 (fail), task 27 trial 2 (fail), task 32 trial 0 (fail), task 42 trial 0 (fail), task 64 trial 0 (fail), task 64 trial 1 (fail), task 74 trial 1 (fail), task 94 trial 1 (fail), task 102 trial 2 (fail)\nstop_after_unexecuted_confirmation: task 9 trial 1 (fail), task 18 trial 0 (fail), task 26 trial 2 (fail), task 27 trial 2 (fail), task 32 trial 0 (fail), task 42 trial 0 (fail), task 64 trial 0 (fail), task 64 trial 1 (fail), task 74 trial 1 (fail), task 90 trial 2 (fail), task 94 trial 1 (fail), task 102 trial 2 (fail)\ntransfer_requested_by_customer: task 12 trial 0 (pass), task 12 trial 1 (pass), task 12 trial 2 (pass), task 51 trial 0 (fail), task 53 trial 0 (fail), task 55 trial 2 (fail), task 65 trial 1 (pass), task 74 trial 2 (fail), task 86 trial 0 (fail), task 100 trial 2 (fail), task 102 trial 1 (fail)",
+        "task_bootstrap_ci_all_outcomes": {
+          "premature_stop": {
+            "estimate": 0.12643678160919541,
+            "ci_low": 0.06896551724137931,
+            "ci_high": 0.19540229885057472,
+            "n_tasks": 29
+          },
+          "stop_after_unexecuted_confirmation": {
+            "estimate": 0.13793103448275862,
+            "ci_low": 0.06896551724137931,
+            "ci_high": 0.20689655172413793,
+            "n_tasks": 29
+          },
+          "transfer_requested_by_customer": {
+            "estimate": 0.12643678160919541,
+            "ci_low": 0.05747126436781609,
+            "ci_high": 0.21839080459770116,
+            "n_tasks": 29
+          }
+        }
+      },
+      "qwen3.8-27b": {
+        "summary": [
+          {
+            "run_name": "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908",
+            "outcome": "pass",
+            "sims": 49,
+            "unmatched": 0,
+            "premature_stop": 0,
+            "premature_stop_rate": 0.0,
+            "stop_after_unexecuted_confirmation": 2,
+            "stop_after_unexecuted_confirmation_rate": 0.04081632653061224,
+            "transfer_requested_by_customer": 4,
+            "transfer_requested_by_customer_rate": 0.08163265306122448,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 7.816326530612245,
+            "mean_agent_turns": 8.510204081632653
+          },
+          {
+            "run_name": "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908",
+            "outcome": "fail",
+            "sims": 38,
+            "unmatched": 0,
+            "premature_stop": 0,
+            "premature_stop_rate": 0.0,
+            "stop_after_unexecuted_confirmation": 0,
+            "stop_after_unexecuted_confirmation_rate": 0.0,
+            "transfer_requested_by_customer": 6,
+            "transfer_requested_by_customer_rate": 0.15789473684210525,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 8.0,
+            "mean_agent_turns": 8.210526315789474
+          },
+          {
+            "run_name": "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908",
+            "outcome": "all",
+            "sims": 87,
+            "unmatched": 0,
+            "premature_stop": 0,
+            "premature_stop_rate": 0.0,
+            "stop_after_unexecuted_confirmation": 2,
+            "stop_after_unexecuted_confirmation_rate": 0.022988505747126436,
+            "transfer_requested_by_customer": 10,
+            "transfer_requested_by_customer_rate": 0.11494252873563218,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 7.896551724137931,
+            "mean_agent_turns": 8.379310344827585
+          }
+        ],
+        "text": "counts (rate) per outcome; infra errors excluded; deterministic transcript checks (whose_noise.fidelity)\ntext_input_style: none recorded; leak script: n/a (no language-pack style)\noutcome  sims premature_stop stop_after_unexec_confirm customer_asks_transfer script_leakage leak_share customer_turns agent_turns\n   pass    49       0 (0.00)                  2 (0.04)               4 (0.08)              -        n/a            7.8         8.5\n   fail    38       0 (0.00)                  0 (0.00)               6 (0.16)              -        n/a            8.0         8.2\n    all    87       0 (0.00)                  2 (0.02)              10 (0.11)              -        n/a            7.9         8.4\nstop_after_unexecuted_confirmation: task 65 trial 1 (pass), task 65 trial 2 (pass)\ntransfer_requested_by_customer: task 12 trial 0 (pass), task 12 trial 1 (pass), task 12 trial 2 (pass), task 32 trial 0 (fail), task 32 trial 2 (fail), task 51 trial 0 (fail), task 51 trial 1 (fail), task 55 trial 0 (fail), task 65 trial 0 (pass), task 101 trial 2 (fail)",
+        "task_bootstrap_ci_all_outcomes": {
+          "premature_stop": {
+            "estimate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "n_tasks": 29
+          },
+          "stop_after_unexecuted_confirmation": {
+            "estimate": 0.022988505747126436,
+            "ci_low": 0.0,
+            "ci_high": 0.06896551724137931,
+            "n_tasks": 29
+          },
+          "transfer_requested_by_customer": {
+            "estimate": 0.11494252873563218,
+            "ci_low": 0.034482758620689655,
+            "ci_high": 0.21839080459770116,
+            "n_tasks": 29
+          }
+        }
+      }
+    },
+    "all_simulations": {
+      "gpt-oss-120b": {
+        "summary": [
+          {
+            "run_name": "rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638",
+            "outcome": "pass",
+            "sims": 27,
+            "unmatched": 0,
+            "premature_stop": 0,
+            "premature_stop_rate": 0.0,
+            "stop_after_unexecuted_confirmation": 0,
+            "stop_after_unexecuted_confirmation_rate": 0.0,
+            "transfer_requested_by_customer": 4,
+            "transfer_requested_by_customer_rate": 0.14814814814814814,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 6.0,
+            "mean_agent_turns": 6.037037037037037
+          },
+          {
+            "run_name": "rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638",
+            "outcome": "fail",
+            "sims": 60,
+            "unmatched": 0,
+            "premature_stop": 11,
+            "premature_stop_rate": 0.18333333333333332,
+            "stop_after_unexecuted_confirmation": 12,
+            "stop_after_unexecuted_confirmation_rate": 0.2,
+            "transfer_requested_by_customer": 7,
+            "transfer_requested_by_customer_rate": 0.11666666666666667,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 6.933333333333334,
+            "mean_agent_turns": 7.216666666666667
+          },
+          {
+            "run_name": "rq1_qwen4b_gptoss120b_test-nonl_t3_s300_ce7e638",
+            "outcome": "all",
+            "sims": 87,
+            "unmatched": 0,
+            "premature_stop": 11,
+            "premature_stop_rate": 0.12643678160919541,
+            "stop_after_unexecuted_confirmation": 12,
+            "stop_after_unexecuted_confirmation_rate": 0.13793103448275862,
+            "transfer_requested_by_customer": 11,
+            "transfer_requested_by_customer_rate": 0.12643678160919541,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 6.64367816091954,
+            "mean_agent_turns": 6.850574712643678
+          }
+        ]
+      },
+      "qwen3.8-27b": {
+        "summary": [
+          {
+            "run_name": "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908",
+            "outcome": "pass",
+            "sims": 49,
+            "unmatched": 0,
+            "premature_stop": 0,
+            "premature_stop_rate": 0.0,
+            "stop_after_unexecuted_confirmation": 2,
+            "stop_after_unexecuted_confirmation_rate": 0.04081632653061224,
+            "transfer_requested_by_customer": 4,
+            "transfer_requested_by_customer_rate": 0.08163265306122448,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 7.816326530612245,
+            "mean_agent_turns": 8.510204081632653
+          },
+          {
+            "run_name": "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908",
+            "outcome": "fail",
+            "sims": 38,
+            "unmatched": 0,
+            "premature_stop": 0,
+            "premature_stop_rate": 0.0,
+            "stop_after_unexecuted_confirmation": 0,
+            "stop_after_unexecuted_confirmation_rate": 0.0,
+            "transfer_requested_by_customer": 6,
+            "transfer_requested_by_customer_rate": 0.15789473684210525,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 8.0,
+            "mean_agent_turns": 8.210526315789474
+          },
+          {
+            "run_name": "rq1_qwen4b_qwen3.8-27b_test-nonl_t3_s300_cd30908",
+            "outcome": "all",
+            "sims": 87,
+            "unmatched": 0,
+            "premature_stop": 0,
+            "premature_stop_rate": 0.0,
+            "stop_after_unexecuted_confirmation": 2,
+            "stop_after_unexecuted_confirmation_rate": 0.022988505747126436,
+            "transfer_requested_by_customer": 10,
+            "transfer_requested_by_customer_rate": 0.11494252873563218,
+            "script_leak_applicable": 0,
+            "script_leakage": 0,
+            "script_leakage_rate": null,
+            "mean_script_leak_share": null,
+            "mean_customer_turns": 7.896551724137931,
+            "mean_agent_turns": 8.379310344827585
+          }
+        ]
+      }
+    },
+    "all_simulations_scope": "every valid simulation of the planned tasks that are not dropped under section 8 (includes tasks outside the analysis set, e.g. pending ones)"
+  },
+  "warnings": []
+}
