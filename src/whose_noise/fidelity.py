@@ -17,6 +17,16 @@ Per simulation (see :data:`FIDELITY_COLUMNS`):
     customer message carries, and whether a ``###STOP###`` message also carries other
     text (e.g. ``"Yes.###STOP###"``).
 
+``merged_turns`` / ``merged_turn_messages`` / ``merged_turn_cue``
+    A customer message that holds more than one turn (:func:`merged_turn_cue`): text
+    after ``###STOP###``, or a sentence end glued to the next sentence with no space
+    ("handy.Okay", "hai.mujhe", "है।मुझे"; emails and links are skipped). Seen with
+    gpt-oss-120b on the ``tau-multilingual`` branch at the default reasoning effort
+    (2026-10-26), where the simulator wrote the rest of the call into one message.
+
+``first_turn_stop``
+    The customer's first message already carries ``###STOP###``.
+
 ``premature_stop`` (strict)
     A customer message contains ``###STOP###`` **and** other text that agrees to a
     pending request (``affirmation_cue``: "yes", "go ahead", "haan", "जी, ठीक है", ...;
@@ -139,6 +149,8 @@ FLAG_COLUMNS: tuple[str, ...] = (
     "premature_stop",
     "stop_after_unexecuted_confirmation",
     "transfer_requested_by_customer",
+    "merged_turns",
+    "first_turn_stop",
 )
 
 FIDELITY_COLUMNS: tuple[str, ...] = (
@@ -146,6 +158,10 @@ FIDELITY_COLUMNS: tuple[str, ...] = (
     "agent_turns",
     "end_token",
     "stop_with_content",
+    "merged_turns",
+    "merged_turn_messages",
+    "merged_turn_cue",
+    "first_turn_stop",
     "premature_stop",
     "stop_after_unexecuted_confirmation",
     "confirmation_cue",
@@ -489,6 +505,20 @@ _TRANSFER_REQUEST_RE = re.compile(
     + rf"|इंसान|मानव\s+(?:एजेंट|प्रतिनिधि)|सुपरवाइज{_NUKTA}?र|मैनेजर\s+से",
     re.IGNORECASE,
 )
+# A sentence end glued to the next sentence with no space ("handy.Okay", "hai.mujhe",
+# "है।मुझे"): what is left when the provider joins several simulator turns into one
+# message. Checked per whitespace token, never across tokens. Case-sensitive on purpose:
+# a capital after the stop marks a new English sentence; romanized Hindi is typed in
+# lower case, so a run of 2+ lower-case letters after the stop also counts.
+_MERGE_GLUE_RES: tuple[re.Pattern[str], ...] = (
+    re.compile(r"(?<=[a-z)’'\"”])[.!?](?=[A-Z][a-z])"),
+    re.compile(r"(?<=[a-z])[.!?](?=[a-z]{2,})"),
+    re.compile(r"[।!?](?=[ऀ-ॿ])"),
+)
+# Tokens where a dot between letters is normal: emails, links, domains.
+_NOT_A_MERGE_TOKEN_RE = re.compile(
+    r"@|/|www|\.(?:com|net|org|in|io|co|us|uk|ai)(?![a-z])", re.IGNORECASE
+)
 
 # --------------------------------------------------------------------------- text helpers
 
@@ -619,6 +649,30 @@ def transfer_cue(customer_text: str) -> str | None:
     """The phrase in which the customer asks for a human / transfer, or None."""
     match = _TRANSFER_REQUEST_RE.search(_normalize(strip_special_tokens(customer_text)))
     return match.group(0).strip() if match else None
+
+
+def merged_turn_cue(customer_text: str) -> str | None:
+    """Where one customer message runs into a further turn, or None.
+
+    Two signs: text after ``###STOP###`` (the simulator kept talking after ending the
+    call), or a sentence end glued to the next sentence inside one token (see
+    ``_MERGE_GLUE_RES``; emails, links and domains are skipped). Found on the
+    ``tau-multilingual`` branch, where gpt-oss-120b at the default reasoning effort
+    wrote whole calls into its first message ("...email handy.Okay, I'm ready...Thanks,
+    bye. ###STOP###"). The cue is the STOP tail or the glued token.
+    """
+    text = unicodedata.normalize("NFKC", customer_text)
+    stop_at = text.find(STOP_TOKEN)
+    if stop_at != -1:
+        tail = text[stop_at + len(STOP_TOKEN) :]
+        if _has_content(strip_special_tokens(tail)):
+            return _trim(STOP_TOKEN + tail, 60)
+    for token in text.split():
+        if _NOT_A_MERGE_TOKEN_RE.search(token):
+            continue
+        if any(rx.search(token) for rx in _MERGE_GLUE_RES):
+            return _trim(token, 60)
+    return None
 
 
 def _letter_script(ch: str) -> str | None:
@@ -873,6 +927,7 @@ def simulation_fidelity(
             break
 
     stop = check_premature_stop(messages, _write_tools_for(sim, write_tools))
+    merge_cues = [c for c in (merged_turn_cue(t) for t in customer) if c]
 
     transfer_cues = [c for c in (transfer_cue(t) for t in customer) if c]
     agent_transferred = any(
@@ -907,6 +962,10 @@ def simulation_fidelity(
         "agent_turns": agent_turns,
         "end_token": end_token,
         "stop_with_content": stop_with_content,
+        "merged_turns": bool(merge_cues),
+        "merged_turn_messages": len(merge_cues),
+        "merged_turn_cue": merge_cues[0] if merge_cues else None,
+        "first_turn_stop": bool(customer) and STOP_TOKEN in customer[0],
         "premature_stop": stop.premature_stop,
         "stop_after_unexecuted_confirmation": stop.stop_after_unexecuted_confirmation,
         "confirmation_cue": stop.confirmation_cue,
@@ -1114,6 +1173,16 @@ def format_fidelity(run_df: pd.DataFrame) -> str:
             "leak_share": [_mean_txt(x, 3) for x in summary["mean_script_leak_share"]],
             "customer_turns": [_mean_txt(x) for x in summary["mean_customer_turns"]],
             "agent_turns": [_mean_txt(x) for x in summary["mean_agent_turns"]],
+            "merged_turns": [
+                _count_rate(c, r)
+                for c, r in zip(summary["merged_turns"], summary["merged_turns_rate"], strict=True)
+            ],
+            "first_turn_stop": [
+                _count_rate(c, r)
+                for c, r in zip(
+                    summary["first_turn_stop"], summary["first_turn_stop_rate"], strict=True
+                )
+            ],
         }
     )
     styles = sorted({str(s) for s in run_df["text_input_style"].dropna()})

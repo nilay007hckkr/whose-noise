@@ -236,6 +236,7 @@ DEFAULT_MAX_CONCURRENCY = 1
 INFRA_ERROR = "infrastructure_error"
 RUN_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 SUBPROCESS_ENV = {"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
+TAU2_ENV_NAME_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 # Per-HTTP-request timeout read by litellm (constants.request_timeout, default 6000 s).
 # A request hung by laptop sleep or a dead connection then fails after this many seconds and is
 # retried by litellm, instead of blocking a simulation for hours (seen 2026-10-19: one
@@ -347,6 +348,7 @@ class GridConfig:
     description: str = ""
     conditions: tuple[ConditionSpec, ...] = ()
     reference_tau2_dir: str | None = None
+    tau2_env: dict[str, str] = field(default_factory=dict)
 
 
 class ConfigError(ValueError):
@@ -620,7 +622,33 @@ def parse_config(raw: Mapping[str, Any]) -> GridConfig:
         description=str(raw.get("description", "")),
         conditions=conditions,
         reference_tau2_dir=_optional_str(raw.get("reference_tau2_dir"), "reference_tau2_dir"),
+        tau2_env=_parse_tau2_env(raw.get("tau2_env")),
     )
+
+
+def _parse_tau2_env(raw: Any) -> dict[str, str]:
+    """Validate ``tau2_env``: extra environment variables for the tau2 child process.
+
+    For switches of a patched checkout (e.g. ``TAU2_PERSONA_CLAUSES``). Names are
+    upper-case identifiers; credential-like names and the variables run_grid sets itself
+    are refused (keys belong in ``.env``).
+    """
+    if raw is None:
+        return {}
+    if not isinstance(raw, Mapping):
+        raise ConfigError("tau2_env: expected an object of NAME: value strings")
+    env: dict[str, str] = {}
+    for name, value in raw.items():
+        if not isinstance(name, str) or not TAU2_ENV_NAME_RE.match(name):
+            raise ConfigError(f"tau2_env: {name!r} is not an upper-case variable name")
+        if not isinstance(value, str):
+            raise ConfigError(f"tau2_env.{name}: expected a string, got {value!r}")
+        if SECRET_FIELD_RE.search(name) or "KEY" in name:
+            raise ConfigError(f"tau2_env.{name}: credentials belong in .env, not in configs")
+        if name in SUBPROCESS_ENV or name == "REQUEST_TIMEOUT":
+            raise ConfigError(f"tau2_env.{name}: set by run_grid itself")
+        env[name] = value
+    return env
 
 
 def load_config(path: Path) -> GridConfig:
@@ -1001,7 +1029,8 @@ def config_hash(
     different model, temperature or api_base gives a different run name. A condition
     cell also hashes :func:`condition_definition` (with the config's top-level
     ``extra_tau2_args``); without a condition the payload (and so every existing run
-    name) is exactly what it was before conditions existed.
+    name) is exactly what it was before conditions existed. A non-empty ``tau2_env`` is
+    hashed too (an empty one leaves every existing run name unchanged).
     """
     fields: dict[str, Any] = {
         "agent_llm": config.agent.llm,
@@ -1012,6 +1041,8 @@ def config_hash(
     }
     if condition is not None:
         fields["condition"] = condition_definition(condition, config.extra_tau2_args)
+    if config.tau2_env:
+        fields["tau2_env"] = dict(sorted(config.tau2_env.items()))
     return hashlib.sha1(compact_json(fields).encode("utf-8")).hexdigest()[:6]
 
 
@@ -1141,12 +1172,33 @@ def build_tau2_command(
     ]
 
 
-def subprocess_env(base: Mapping[str, str]) -> dict[str, str]:
-    """Copy of ``base`` with UTF-8 forced and a litellm request timeout for the child process."""
+def subprocess_env(
+    base: Mapping[str, str], extra: Mapping[str, str] | None = None
+) -> dict[str, str]:
+    """Copy of ``base`` with UTF-8 forced, a litellm request timeout and the config's
+    ``tau2_env`` (``extra``, which wins over ``base``) for the child process."""
     env = dict(base)
     env.update(SUBPROCESS_ENV)
     env.setdefault("REQUEST_TIMEOUT", DEFAULT_REQUEST_TIMEOUT_S)
+    env.update(extra or {})
     return env
+
+
+def unread_tau2_env(tau2_dir: Path, names: Iterable[str]) -> list[str]:
+    """Names in ``names`` that no ``*.py`` file under ``tau2_dir/src`` mentions.
+
+    A switch nobody reads is a silent no-op (e.g. the persona patch not applied to this
+    checkout), so such a config is refused.
+    """
+    missing = set(names)
+    if not missing:
+        return []
+    for path in sorted((tau2_dir / "src").rglob("*.py")):
+        if not missing:
+            break
+        text = path.read_text(encoding="utf-8", errors="replace")
+        missing = {n for n in missing if n not in text}
+    return sorted(missing)
 
 
 # --------------------------------------------------------------------------------------
@@ -1874,17 +1926,29 @@ def console_write(text: str) -> None:
     sys.stdout.flush()
 
 
-def run_and_log(argv: Sequence[str], cwd: Path, log_path: Path) -> int:
-    """Run ``argv`` in ``cwd``, streaming its merged output to the console and ``log_path``."""
+def run_and_log(
+    argv: Sequence[str],
+    cwd: Path,
+    log_path: Path,
+    extra_env: Mapping[str, str] | None = None,
+) -> int:
+    """Run ``argv`` in ``cwd``, streaming its merged output to the console and ``log_path``.
+
+    ``extra_env`` (the config's ``tau2_env``) is added to the child's environment and
+    written to the log header.
+    """
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, "a", encoding="utf-8") as log:
         log.write(f"\n===== {datetime.now().isoformat(timespec='seconds')} =====\n")
-        log.write(f"cwd: {cwd}\nargv: {shlex.join(argv)}\n\n")
+        log.write(f"cwd: {cwd}\nargv: {shlex.join(argv)}\n")
+        if extra_env:
+            log.write(f"tau2_env: {compact_json(dict(sorted(extra_env.items())))}\n")
+        log.write("\n")
         log.flush()
         proc = subprocess.Popen(
             list(argv),
             cwd=cwd,
-            env=subprocess_env(os.environ),
+            env=subprocess_env(os.environ, extra_env),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
@@ -2135,7 +2199,7 @@ def _run_cell(
     log_path = args.log_dir / f"{plan.run_name}.log"
     print(f"[run_grid] log: {log_path}")
     try:
-        code = run_and_log(argv_list, tau2_dir, log_path)
+        code = run_and_log(argv_list, tau2_dir, log_path, config.tau2_env)
     except KeyboardInterrupt:
         summary.status = "interrupted (rerun the same command to resume)"
         return summary, True
@@ -2221,6 +2285,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         for cond in conditions:
             if cond is not None:  # extra-arg values tau2 could not parse fail here, early
                 planned_branch_settings(config, cond, checkout.defaults if checkout else None)
+        unread = unread_tau2_env(tau2_dir, config.tau2_env)
+        if unread:
+            raise ConfigError(
+                f"tau2_env {', '.join(unread)} is not read anywhere in {tau2_dir / 'src'} "
+                "(is the patch in patches/ applied to this checkout?)"
+            )
     except (ConfigError, ValueError, OSError) as exc:
         print(f"[run_grid] error: {exc}", file=sys.stderr)
         return 2
@@ -2231,6 +2301,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if reference_line:
         print(reference_line)
     print(f"[run_grid] agent:      {config.agent.llm}  args={compact_json(config.agent.llm_args)}")
+    if config.tau2_env:
+        print(f"[run_grid] tau2 env:   {compact_json(dict(sorted(config.tau2_env.items())))}")
     print(
         f"[run_grid] tasks:      {len(all_ids)} total; chunk {chunk[0]}/{chunk[1]} adds "
         f"{len(new_ids)} -> passing {len(task_ids)} ids x {config.num_trials} trials"

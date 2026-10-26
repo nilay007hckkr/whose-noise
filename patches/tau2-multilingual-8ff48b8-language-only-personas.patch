@@ -1,0 +1,28 @@
+diff --git a/src/tau2/multilingual/schema.py b/src/tau2/multilingual/schema.py
+index e15be31..8888c9c 100644
+--- a/src/tau2/multilingual/schema.py
++++ b/src/tau2/multilingual/schema.py
+@@ -25,6 +25,7 @@ Persona content model — who owns what:
+   task persona inside one prompt.
+ """
+ 
++import os
+ import re
+ from enum import Enum
+ from pathlib import Path
+@@ -233,7 +234,14 @@ class MultilingualPersonaConfig(PersonaConfig):
+             lines.append(
+                 english_prompt_string(f"gender_preamble_{gender}", self.language)
+             )
+-        for clause in self.pragmatics_clauses:
++        clauses = self.pragmatics_clauses
++        # whose-noise patch (language-only personas): TAU2_PERSONA_CLAUSES=first keeps only
++        # clause 0, the persona's language profile, and drops the conditional attitude
++        # realizations (openings, closings, frustration), which made gpt-oss-120b merge
++        # several turns into one message. Unset = upstream behaviour.
++        if os.environ.get("TAU2_PERSONA_CLAUSES") == "first":
++            clauses = clauses[:1]
++        for clause in clauses:
+             lines.append(clause.strip())
+         if lines:
+             header = english_prompt_string("persona_language_header", self.language)

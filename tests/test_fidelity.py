@@ -32,6 +32,7 @@ from whose_noise.fidelity import (
     format_fidelity,
     infer_user_language,
     leak_script_for,
+    merged_turn_cue,
     script_counts,
     simulation_fidelity,
     transfer_cue,
@@ -495,6 +496,65 @@ def test_transfer_columns() -> None:
     assert row["end_token"] == "TRANSFER" and not row["stop_with_content"]
 
 
+# ----------------------------------------------------------------- merged turns
+
+# First customer message of the 2026-10-26 en_pack run (gpt-oss-120b, task 5_en).
+MERGED_EN = (
+    "Yeah, hi. I need to do a couple of exchanges. My account's under mei_kovacs_8020, "
+    "zip 28236. I don’t have my email handy.Okay, I’m ready. Let’s get those exchanges "
+    "started.Sure, just confirm the lamp exchange.Okay, great. That’s all I needed. "
+    "Thanks, bye. ###STOP###"
+)
+
+
+@pytest.mark.parametrize(
+    ("text", "cue"),
+    [
+        (MERGED_EN, "handy.Okay,"),
+        ("yes.yes.", "yes.yes."),  # RQ1 gpt-oss-120b task 102 trial 0
+        ("Thanks!Bye.", "Thanks!Bye."),
+        ("theek hai.mujhe aur kuch nahi chahiye", "hai.mujhe"),
+        ("ठीक है।मुझे और कुछ नहीं चाहिए", "है।मुझे"),
+        ("Thanks, bye. ###STOP### Actually, wait.", "###STOP### Actually, wait."),
+    ],
+)
+def test_merged_turn_cue_positive(text: str, cue: str) -> None:
+    assert merged_turn_cue(text) == cue
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "My email is mei.kovacs@example.com.",
+        "It's on www.example.com, I think.",
+        "The shop is example.co.in.",
+        "It cost $12.50.Okay?",  # digit before the stop: not checked
+        "I live in the U.S. Okay?",
+        "Hmm...Okay, fine.",
+        "Yes. Okay. Thanks!###STOP###",
+        "namaste, main mei_kovacs_8020 hoon. mujhe exchange karna hai.",
+        "ठीक है। धन्यवाद।###STOP###",
+        "###STOP###",
+        "",
+    ],
+)
+def test_merged_turn_cue_negative(text: str) -> None:
+    assert merged_turn_cue(text) is None
+
+
+def test_merged_and_first_turn_stop_columns() -> None:
+    collapsed = [agent("Hi, thanks for calling. How can I help you today?"), user(MERGED_EN)]
+    row = simulation_fidelity(sim(collapsed, reward=0.0))
+    assert row["merged_turns"] and row["merged_turn_messages"] == 1
+    assert row["merged_turn_cue"] == "handy.Okay,"
+    assert row["first_turn_stop"] and row["customer_turns"] == 1
+
+    clean = simulation_fidelity(sim(convo(agent(SIGN_OFF), user("Thanks!###STOP###"))))
+    assert not clean["merged_turns"] and clean["merged_turn_messages"] == 0
+    assert clean["merged_turn_cue"] is None and not clean["first_turn_stop"]
+    assert not simulation_fidelity(sim([]))["first_turn_stop"]
+
+
 # ----------------------------------------------------------------- basics
 
 
@@ -778,22 +838,28 @@ def test_fidelity_summary_by_outcome(tmp_path: Path) -> None:
         sim(convo(agent(SIGN_OFF), user("Thanks!###STOP###")), task_id="2", trial=0),
         sim(convo(user("Can I speak to a human?"), user("###TRANSFER###")), task_id="2", trial=1),
         sim([], task_id="3", trial=0, reward=None),  # infra error: excluded
+        sim([agent("Hi!"), user(MERGED_EN)], task_id="4", trial=0, reward=0.0),
     ]
     df = add_fidelity(load_runs(write_run(tmp_path / "synth", sims)))
     s = fidelity_summary(df).set_index("outcome")
-    assert s.loc["pass", "sims"] == 2 and s.loc["fail", "sims"] == 2 and s.loc["all", "sims"] == 4
-    assert s.loc["fail", "premature_stop"] == 1 and s.loc["fail", "premature_stop_rate"] == 0.5
+    assert s.loc["pass", "sims"] == 2 and s.loc["fail", "sims"] == 3 and s.loc["all", "sims"] == 5
+    assert s.loc["fail", "premature_stop"] == 1
+    assert s.loc["fail", "premature_stop_rate"] == pytest.approx(1 / 3)
     assert s.loc["fail", "stop_after_unexecuted_confirmation"] == 2
     assert s.loc["pass", "premature_stop"] == 0
     assert s.loc["pass", "transfer_requested_by_customer"] == 1
-    assert s.loc["all", "transfer_requested_by_customer_rate"] == pytest.approx(0.25)
+    assert s.loc["all", "transfer_requested_by_customer_rate"] == pytest.approx(0.2)
+    assert s.loc["fail", "merged_turns"] == 1 and s.loc["fail", "first_turn_stop"] == 1
+    assert s.loc["pass", "merged_turns"] == 0
     assert s.loc["all", "script_leak_applicable"] == 0
     assert math.isnan(s.loc["all", "script_leakage_rate"])
 
     text = format_fidelity(df)
-    assert "fail     2       1 (0.50)                  2 (1.00)" in text
+    assert "fail     3       1 (0.33)                  2 (0.67)" in text
     assert "premature_stop: task 1 trial 0 (fail)" in text
     assert "transfer_requested_by_customer: task 2 trial 1 (pass)" in text
+    assert "merged_turns: task 4 trial 0 (fail)" in text
+    assert "first_turn_stop: task 4 trial 0 (fail)" in text
     assert "task 3" not in text  # infra error
 
 

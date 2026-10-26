@@ -4,6 +4,10 @@
   "domain": "retail",
   "tau2_dir": "D:/Programming/Reaserch/tau2-bench-multilingual",
   "reference_tau2_dir": "D:/Programming/Reaserch/tau2-bench",
+  "tau2_env": {
+    "TAU2_PERSONA_CLAUSES": "first"
+  },
+  "tau2_env_notes": "Language-only personas (PREREGISTRATION section 13, amendment A1): with patches/tau2-multilingual-8ff48b8-language-only-personas.patch applied, the persona block keeps the gender line and pragmatics clause 0 (the language profile) and drops the conditional attitude clauses, which made gpt-oss-120b merge turns (docs/RESULTS_LOG.md, 2026-10-26).",
   "agent": {
     "name": "qwen4b",
     "llm": "openai/qwen3-4b",

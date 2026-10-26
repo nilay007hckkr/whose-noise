@@ -53,9 +53,17 @@ cd D:\Programming\Reaserch
 git clone --branch tau-multilingual --single-branch https://github.com/sierra-research/tau2-bench.git tau2-bench-multilingual
 cd tau2-bench-multilingual
 git log -1 --format="%H %cd"      # write this hash into PREREGISTRATION.md
+# the two whose-noise patches (see PREREGISTRATION sections 5 and 13):
+git apply ..\whose-noise\patches\tau2-multilingual-8ff48b8-windows-run-lock.patch
+git apply ..\whose-noise\patches\tau2-multilingual-8ff48b8-language-only-personas.patch
+git diff --stat                   # src/tau2/runner/run_lock.py and src/tau2/multilingual/schema.py
 uv sync --extra voice
 uv run tau2 run --help | Select-String "text-input-style|user-persona-id|task-set-name"
 ```
+
+- The run-lock patch only replaces `fcntl` (missing on Windows) with `msvcrt`; no behavioural change.
+- The persona patch does nothing unless `TAU2_PERSONA_CLAUSES=first` is set. `run_grid.py` sets it from
+  the config's `tau2_env` and refuses to run if no file under `src/` reads that variable (patch missing).
 
 ### API keys (`.env` in the tau2-bench folder, never in this repo)
 

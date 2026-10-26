@@ -243,6 +243,84 @@ Descriptive (pre-registered reporting, not tests):
   `src/tau2/user/guidelines.py`; the "do not end the conversation prematurely" bullet is there only
   in the voice templates, not the text ones that RQ1 used.
 
+## 2026-10-26: gpt-oss-120b merges turns on the branch; RQ2 amendment A1 (language-only personas)
+
+First RQ2 cell (`en_pack`, task `5_en`, 2 trials, frozen settings): both simulations ended after one
+customer message in 2 s, reward 0. The message held the whole call: "...I don't have my email
+handy.Okay, I'm ready. Let's get those exchanges started.Sure, just confirm the lamp exchange.No, I'm
+only confirming the lamp swap...Okay, great. That's all I needed. Thanks, bye. ###STOP###". The run was
+stopped before the Hindi arms started. Diagnosis (diagnostic runs `diag_enpack_task5`,
+`diag_hirom_task5` on the branch; direct replays of the logged request; none of it is RQ2 data):
+
+- **Cause = the persona block.** On the branch the simulator prompt carries the language-pack persona
+  (for `en`: `lisa_en_v1`, a clipped New Jersey office manager with many example lines, including the
+  closing "Okay, great, that's all I needed, thanks, bye"). On `main` that slot is empty. The LLM call
+  path for gpt-oss is the same on both (no Responses-API bridge; it applies only to gpt-5 ids).
+- **The joins have no space** ("handy.Okay", "started.Sure"), so the model most likely emitted several
+  separate final messages that the provider joined. Repeats of the same request at temperature 0 vary
+  (Groq is not deterministic).
+- First-turn replays with the logged `5_en` request (the agent's greeting only):
+
+| Simulator / setting | Broken first turns | Notes |
+|---|---|---|
+| gpt-oss-120b, default (medium) effort | **6 of 8** (3 in tau2 + 3 of 5 direct: 2 merged calls, 1 `###STOP###` in the first message) | 1,467-1,674 tokens when merged |
+| gpt-oss-120b, `reasoning_effort` low | 0 of 4 | ~60-70 output tokens per turn |
+| gpt-oss-120b, `reasoning_effort` high | 0 of 4 | 577-1,089 output tokens per turn |
+| qwen3.8-27b (default) | 0 of 4 | 35 output tokens |
+
+- With the Hindi prompt (`5_hi`, romanized, persona `rishika_hindi_v1`): gpt-oss medium 3 of 3 fine,
+  gpt-oss low 3 of 3 fine (Latin-script Hindi, female agreement "chahti hoon"); qwen3.8-27b 2 of 2
+  typed **Devanagari** although told to romanize (as in the 2026-10-12 smoke run, 7 of 8 turns), so
+  switching simulator would void the romanized vs code-mixed contrast (H2e).
+- Persona per task (`resolve_task_persona`, gender-matched): `en` gives `lisa_en_v1` on 10 of RQ2's 12
+  tasks (`matt_en_v1` on 33, 49); `hi` gives `rishika_hindi_v1` on the same 10 (`imran_hindi_v1` on 33,
+  49). So the error would have hit the English control far more than the Hindi arms.
+- **RQ1 is unaffected** (no persona block on `main`): new screens on all 174 RQ1 simulations find 0
+  first-turn stops and 1 merged message, "yes.yes." (gpt-oss task 102 trial 0: two identical one-word
+  replies, no invented content; not one of the counted premature stops). qwen3.8 0, pilot1 0.
+
+**First fix tried and withdrawn: `reasoning_effort: "low"`.** Decided in the morning (it fixed
+turn 1 of `5_en`: 0 of 4) and tested in pilot `rq2pilot` (task 53, outside RQ2's 12, personas
+`lisa_en_v1` / `rishika_hindi_v1`, 1 trial x 3 arms, criteria fixed in advance). It **failed**:
+`en_pack` merged turns at customer turn 2 ("...I'm not sure what it is.Okay, what else do you need to
+verify me?My name's Sofia Li, and my zip code is 78260.###STOP###"); `hi_romanized` ended the call at
+turn 2 while giving its login details ("mera naam Sofia Li hai aur mera zip code 78260
+hai.###STOP###"); `hi_code_mixed` was a normal 5-turn call. The two excluded `5_en` runs and the
+pilot are not RQ2 data.
+
+**Ablation at the failing turn** (turn 2 of `53_en`, history from the pilot, 4 calls each):
+
+| Prompt variant | default (medium) | low |
+|---|---|---|
+| branch prompt as is | 1/4 broken | 4/4 |
+| without the "Note: You still need to use special tokens like ###STOP###" line | 0/4 | 3/4 |
+| without the persona block | 0/4 | 0/4 |
+| without both (= the `main` prompt) | 0/4 | 0/4 |
+
+So the persona block causes the error; low effort helps turn 1 but makes turn 2 worse.
+
+**Persona-lite** (gender line + pragmatics clause 0 = the language profile, + the Hindi localization
+block; attitude clauses dropped), default effort:
+
+| Test point | branch prompt as is | persona-lite |
+|---|---|---|
+| `5_en`, turn 1 | 6/8 broken | 1/4 |
+| `53_en`, turn 2 | 1/4 | 0/4 |
+| `53_hi` romanized, turn 2 | 0/3 | 0/3 |
+
+**Decision (the author, 2026-10-26): amendment A1** (PREREGISTRATION section 13, a draft until the
+pilot passes and `prereg-v2` is tagged): language-only personas in all arms through
+`patches/tau2-multilingual-8ff48b8-language-only-personas.patch` and `TAU2_PERSONA_CLAUSES=first`
+(`tau2_env` in the config), default effort, everything else as frozen. The patched code renders
+exactly the persona-lite prompts tested above (checked character for character for `53_en` and
+`5_hi`; without the switch it renders the logged branch prompt exactly). New pilot `rq2pilot2`
+(tasks 53 and 56 x 1 trial x 3 arms) with pass criteria in section 13. Caveat: 1 broken turn in 11
+remains possible with persona-lite, so `merged_turns` / `first_turn_stop` are reported per arm with a
+sensitivity analysis. Also seen: persona `rishika_hindi_v1` slipped once into masculine agreement
+("मैं बस चाहता हूँ") in the code-mixed pilot.
+
+Pilot `rq2pilot2` result: pending (needs a fresh gpt-oss-120b quota window).
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in

@@ -1,0 +1,82 @@
+{
+  "experiment": "rq2pilot",
+  "description": "FAILED and withdrawn (2026-10-26): RQ2 fidelity pilot for the reasoning_effort=low deviation (PREREGISTRATION section 12, 2026-10-26). NOT confirmatory and never pooled with rq2a: one judge-free retail test task outside RQ2's first 12 (task 53; its personas are lisa_en_v1 / rishika_hindi_v1, the ones 10 of RQ2's 12 tasks get) x 1 trial x the 3 RQ2 arms, with exactly the RQ2 settings. Pass criteria were fixed before the run: no merged_turns and no first_turn_stop in any arm, hi_romanized script-leak share <= 0.5, every transcript read by hand. Rewards are not used for the decision. Result: en_pack merged turns at customer turn 2 and hi_romanized ended the call at turn 2; the ablation showed the persona block, not the reasoning effort, is the cause (docs/RESULTS_LOG.md). Kept only as the record of that pilot; do not run.",
+  "domain": "retail",
+  "tau2_dir": "D:/Programming/Reaserch/tau2-bench-multilingual",
+  "reference_tau2_dir": "D:/Programming/Reaserch/tau2-bench",
+  "agent": {
+    "name": "qwen4b",
+    "llm": "openai/qwen3-4b",
+    "llm_args": {
+      "api_base": "http://127.0.0.1:8080/v1",
+      "api_key": "local",
+      "temperature": 0.0
+    }
+  },
+  "simulators": [
+    {
+      "name": "gptoss120b",
+      "llm": "groq/openai/gpt-oss-120b",
+      "llm_args": {
+        "temperature": 0.0,
+        "num_retries": 8,
+        "retry_strategy": "exponential_backoff_retry",
+        "reasoning_effort": "low"
+      },
+      "daily_token_budget": 200000,
+      "tokens_per_task_estimate": 13000,
+      "daily_request_budget": 1000,
+      "requests_per_task_estimate": 20,
+      "notes": "Groq free plan: 200K tokens/day for this model, shared with the RQ1 gptoss120b runs on the same day. The per-condition estimates below replace tokens_per_task_estimate. reasoning_effort low added 2026-10-26 (PREREGISTRATION section 12): at the default (medium) effort gpt-oss-120b merged several turns into one message or sent ###STOP### in its first message in 6 of 8 first-turn calls with the en pack persona lisa_en_v1 (0 of 4 at low, 0 of 4 at high); see docs/RESULTS_LOG.md."
+    }
+  ],
+  "tasks": {
+    "ids": [
+      "53"
+    ],
+    "exclude_nl_assertions": true
+  },
+  "num_trials": 1,
+  "seed": 300,
+  "max_concurrency": 1,
+  "extra_tau2_args": [],
+  "conditions": [
+    {
+      "name": "en_pack",
+      "task_set_name": "retail_en",
+      "task_id_suffix": "_en",
+      "user_persona_id": "en",
+      "tokens_per_task_estimate": 13000,
+      "enabled": true,
+      "notes": "English language pack (matched control: same persona machinery as the Hindi arms). Estimate = RQ1 gpt-oss-120b English cost (11,812 measured) padded ~10%."
+    },
+    {
+      "name": "hi_native",
+      "task_set_name": "retail_hi",
+      "task_id_suffix": "_hi",
+      "user_persona_id": "hi",
+      "text_input_style": "native_script",
+      "tokens_per_task_estimate": 42000,
+      "enabled": false,
+      "notes": "Hindi in Devanagari (the branch default style). Estimate raised 35K -> 42K on 2026-10-20 (gpt-oss-120b used ~1.3x qwen3.8-27b's tokens in English); re-measure after the first chunk."
+    },
+    {
+      "name": "hi_romanized",
+      "task_set_name": "retail_hi",
+      "task_id_suffix": "_hi",
+      "user_persona_id": "hi",
+      "text_input_style": "romanized",
+      "tokens_per_task_estimate": 42000,
+      "notes": "Estimate: 31,458 user tokens measured in ONE smoke simulation (task 0_hi, qwen3.8-27b simulator), padded ~10%. gpt-oss-120b used ~1.3x qwen3.8's tokens in English, so ~42K is possible: re-measure after chunk 1. Smoke: 7 of 8 customer turns had Devanagari although style=romanized; check style compliance before reading this arm as romanized. Estimate raised 35K -> 42K on 2026-10-20 (gpt-oss-120b used ~1.3x qwen3.8-27b's tokens in English); re-measure after the first chunk."
+    },
+    {
+      "name": "hi_code_mixed",
+      "task_set_name": "retail_hi",
+      "task_id_suffix": "_hi",
+      "user_persona_id": "hi",
+      "text_input_style": "code_mixed",
+      "tokens_per_task_estimate": 42000,
+      "notes": "Hinglish code-mixed. Same unmeasured-for-gpt-oss caveat as hi_romanized. Estimate raised 35K -> 42K on 2026-10-20 (gpt-oss-120b used ~1.3x qwen3.8-27b's tokens in English); re-measure after the first chunk."
+    }
+  ]
+}

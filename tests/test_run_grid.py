@@ -97,6 +97,66 @@ def test_subprocess_env_keeps_an_explicit_request_timeout():
     assert env["REQUEST_TIMEOUT"] == "900"
 
 
+def test_subprocess_env_adds_tau2_env_last():
+    env = rg.subprocess_env(
+        {"TAU2_PERSONA_CLAUSES": "all", "PATH": "x"}, {"TAU2_PERSONA_CLAUSES": "first"}
+    )
+    assert env["TAU2_PERSONA_CLAUSES"] == "first" and env["PATH"] == "x"
+    assert rg.subprocess_env({}, None) == rg.subprocess_env({})
+
+
+# ---------------------------------------------------------------- tau2_env
+
+
+def test_tau2_env_parsed_and_validated():
+    assert rg.parse_config(raw_config()).tau2_env == {}
+    cfg = rg.parse_config(raw_config(tau2_env={"TAU2_PERSONA_CLAUSES": "first"}))
+    assert cfg.tau2_env == {"TAU2_PERSONA_CLAUSES": "first"}
+    bad = [
+        ["A=B"],
+        {"lower_case": "x"},
+        {"TAU2_X": 1},
+        {"GROQ_API_KEY": "local"},
+        {"MY_TOKEN": "x"},
+        {"PYTHONUTF8": "0"},
+        {"REQUEST_TIMEOUT": "10"},
+    ]
+    for env in bad:
+        with pytest.raises(rg.ConfigError, match="tau2_env"):
+            rg.parse_config(raw_config(tau2_env=env))
+
+
+def test_tau2_env_is_hashed_only_when_set():
+    plain = rg.parse_config(raw_config())
+    assert rg.config_hash(plain, plain.simulators[0]) == CFG_HASH
+    a = rg.parse_config(raw_config(tau2_env={"TAU2_PERSONA_CLAUSES": "first"}))
+    b = rg.parse_config(raw_config(tau2_env={"TAU2_PERSONA_CLAUSES": "all"}))
+    hashes = {rg.config_hash(c, c.simulators[0]) for c in (plain, a, b)}
+    assert len(hashes) == 3
+
+
+def test_unread_tau2_env(tmp_path: Path):
+    src = tmp_path / "src" / "tau2"
+    src.mkdir(parents=True)
+    (src / "schema.py").write_text('os.environ.get("TAU2_PERSONA_CLAUSES")', encoding="utf-8")
+    assert rg.unread_tau2_env(tmp_path, ["TAU2_PERSONA_CLAUSES"]) == []
+    assert rg.unread_tau2_env(tmp_path, ["TAU2_PERSONA_CLAUSES", "TAU2_NOPE"]) == ["TAU2_NOPE"]
+    assert rg.unread_tau2_env(tmp_path / "missing", []) == []
+
+
+def test_run_and_log_passes_tau2_env_and_logs_it(tmp_path: Path):
+    log = tmp_path / "run.log"
+    code = rg.run_and_log(
+        [sys.executable, "-c", "import os; print('clauses=' + os.environ['TAU2_PERSONA_CLAUSES'])"],
+        tmp_path,
+        log,
+        {"TAU2_PERSONA_CLAUSES": "first"},
+    )
+    text = log.read_text(encoding="utf-8")
+    assert code == 0 and "clauses=first" in text
+    assert 'tau2_env: {"TAU2_PERSONA_CLAUSES":"first"}' in text
+
+
 # ---------------------------------------------------------------- task-id resolution
 
 
@@ -840,6 +900,8 @@ def test_shipped_rq2_config_is_option_a_with_english_arm():
         "num_retries": 8,
         "retry_strategy": "exponential_backoff_retry",
     }
+    # Amendment A1 (PREREGISTRATION section 13): language-only personas on the patched branch.
+    assert config.tau2_env == {"TAU2_PERSONA_CLAUSES": "first"}
     assert config.tasks == rg.TaskSource(split="test", exclude_nl_assertions=True, limit=12)
     assert (config.num_trials, config.seed, config.max_concurrency) == (2, 300, 1)
     assert {c.name: c.enabled for c in config.conditions} == {
@@ -856,11 +918,25 @@ def test_shipped_rq2_config_is_option_a_with_english_arm():
     assert config.reference_tau2_dir is not None
     conditions = rg._selected_conditions(config, None)
     assert [name for *_, name in rg.selected_cells(config, sims, conditions)] == [
-        "rq2a_qwen4b_gptoss120b_en-pack_test-nonl-first12_t2_s300_ca8f1b3",
-        "rq2a_qwen4b_gptoss120b_hi-romanized_test-nonl-first12_t2_s300_cb50a00",
-        "rq2a_qwen4b_gptoss120b_hi-code-mixed_test-nonl-first12_t2_s300_c7c5992",
+        "rq2a_qwen4b_gptoss120b_en-pack_test-nonl-first12_t2_s300_c70675c",
+        "rq2a_qwen4b_gptoss120b_hi-romanized_test-nonl-first12_t2_s300_c9f6a09",
+        "rq2a_qwen4b_gptoss120b_hi-code-mixed_test-nonl-first12_t2_s300_c0da38e",
     ]
     assert config.agent.llm_args["api_key"] == "local"
+
+
+def test_shipped_rq2_pilot_matches_rq2_except_tasks_and_trials():
+    rq2 = rg.load_config(REPO_ROOT / "configs" / "rq2_option_a.json")
+    pilot = rg.load_config(REPO_ROOT / "configs" / "rq2_pilot_lite.json")
+    assert pilot.experiment == "rq2pilot2" != rq2.experiment
+    assert pilot.tasks == rg.TaskSource(ids=("53", "56"), exclude_nl_assertions=True)
+    assert (pilot.num_trials, pilot.seed) == (1, rq2.seed)
+    assert pilot.simulators == rq2.simulators and pilot.agent == rq2.agent
+    assert pilot.conditions == rq2.conditions and pilot.tau2_env == rq2.tau2_env
+    # Same cell settings -> same config hash suffix, but never the same run name.
+    sims = rg._selected_simulators(pilot, None)
+    names = [n for *_, n in rg.selected_cells(pilot, sims, rg._selected_conditions(pilot, None))]
+    assert all(n.startswith("rq2pilot2_") for n in names) and len(names) == 3
 
 
 def test_condition_mismatches_against_the_real_hindi_smoke_run():
