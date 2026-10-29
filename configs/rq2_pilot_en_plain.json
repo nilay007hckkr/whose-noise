@@ -1,0 +1,91 @@
+{
+  "experiment": "rq2pilot3",
+  "description": "English-only fidelity pilot for amendment A1 with the plain English control (PREREGISTRATION section 13). NOT confirmatory and never pooled with rq2a: six judge-free retail test tasks outside RQ2's first 12 (53, 55, 56, 61, 64, 65) x 1 trial x en_plain only, with exactly the RQ2 settings. The Hindi arms were piloted with identical settings in rq2pilot2. Pass criteria fixed before the run (section 13); rewards are not used for the decision.",
+  "domain": "retail",
+  "tau2_dir": "D:/Programming/Reaserch/tau2-bench-multilingual",
+  "reference_tau2_dir": "D:/Programming/Reaserch/tau2-bench",
+  "tau2_env": {
+    "TAU2_PERSONA_CLAUSES": "first"
+  },
+  "tau2_env_notes": "Language-only personas for the Hindi arms (PREREGISTRATION section 13, amendment A1): with patches/tau2-multilingual-8ff48b8-language-only-personas.patch applied, the persona block keeps the gender line and pragmatics clause 0 (the language profile) and drops the conditional attitude clauses, which made gpt-oss-120b merge turns (docs/RESULTS_LOG.md, 2026-10-26 and 2026-10-29). No effect on en_plain, which has no persona.",
+  "agent": {
+    "name": "qwen4b",
+    "llm": "openai/qwen3-4b",
+    "llm_args": {
+      "api_base": "http://127.0.0.1:8080/v1",
+      "api_key": "local",
+      "temperature": 0.0
+    }
+  },
+  "simulators": [
+    {
+      "name": "gptoss120b",
+      "llm": "groq/openai/gpt-oss-120b",
+      "llm_args": {
+        "temperature": 0.0,
+        "num_retries": 8,
+        "retry_strategy": "exponential_backoff_retry"
+      },
+      "daily_token_budget": 200000,
+      "tokens_per_task_estimate": 13000,
+      "daily_request_budget": 1000,
+      "requests_per_task_estimate": 20,
+      "notes": "Groq free plan: 200K tokens/day for this model, shared with the RQ1 gptoss120b runs on the same day. The per-condition estimates below replace tokens_per_task_estimate."
+    }
+  ],
+  "tasks": {
+    "ids": [
+      "53",
+      "55",
+      "56",
+      "61",
+      "64",
+      "65"
+    ],
+    "exclude_nl_assertions": true
+  },
+  "num_trials": 1,
+  "seed": 300,
+  "max_concurrency": 1,
+  "extra_tau2_args": [],
+  "conditions": [
+    {
+      "name": "en_plain",
+      "task_set_name": "retail",
+      "task_id_suffix": "",
+      "tokens_per_task_estimate": 13000,
+      "enabled": true,
+      "notes": "English control: the domain's base retail task set (ids without suffix; run_grid checks they match retail_en/retail_hi in evaluation_criteria, user_scenario and initial_state) with tau2's standard English user prompt and no persona (amendment A1, PREREGISTRATION section 13). The branch refuses retail_en without a persona. The English pack personas made gpt-oss-120b merge turns, also in their language-only form (pilot rq2pilot2). Same branch commit as the Hindi arms. Estimate = RQ1 gpt-oss-120b English cost (11,812 measured) padded ~10%."
+    },
+    {
+      "name": "hi_native",
+      "task_set_name": "retail_hi",
+      "task_id_suffix": "_hi",
+      "user_persona_id": "hi",
+      "text_input_style": "native_script",
+      "tokens_per_task_estimate": 42000,
+      "enabled": false,
+      "notes": "Hindi in Devanagari (the branch default style). Estimate raised 35K -> 42K on 2026-10-20 (gpt-oss-120b used ~1.3x qwen3.8-27b's tokens in English); re-measure after the first chunk."
+    },
+    {
+      "name": "hi_romanized",
+      "task_set_name": "retail_hi",
+      "task_id_suffix": "_hi",
+      "user_persona_id": "hi",
+      "text_input_style": "romanized",
+      "tokens_per_task_estimate": 42000,
+      "notes": "Estimate: 31,458 user tokens measured in ONE smoke simulation (task 0_hi, qwen3.8-27b simulator), padded ~10%. gpt-oss-120b used ~1.3x qwen3.8's tokens in English, so ~42K is possible: re-measure after chunk 1. Smoke: 7 of 8 customer turns had Devanagari although style=romanized; check style compliance before reading this arm as romanized. Estimate raised 35K -> 42K on 2026-10-20 (gpt-oss-120b used ~1.3x qwen3.8-27b's tokens in English); re-measure after the first chunk.",
+      "enabled": false
+    },
+    {
+      "name": "hi_code_mixed",
+      "task_set_name": "retail_hi",
+      "task_id_suffix": "_hi",
+      "user_persona_id": "hi",
+      "text_input_style": "code_mixed",
+      "tokens_per_task_estimate": 42000,
+      "notes": "Hinglish code-mixed. Same unmeasured-for-gpt-oss caveat as hi_romanized. Estimate raised 35K -> 42K on 2026-10-20 (gpt-oss-120b used ~1.3x qwen3.8-27b's tokens in English); re-measure after the first chunk.",
+      "enabled": false
+    }
+  ]
+}

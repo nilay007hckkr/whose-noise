@@ -1,6 +1,6 @@
 {
   "experiment": "rq2pilot2",
-  "description": "Fidelity pilot for amendment A1 (language-only personas; PREREGISTRATION section 13). NOT confirmatory and never pooled with rq2a: two judge-free retail test tasks outside RQ2's first 12 - 53 (personas lisa_en_v1 / rishika_hindi_v1, as on 10 of RQ2's 12 tasks) and 56 (matt_en_v1 / imran_hindi_v1, as on tasks 33 and 49) - x 1 trial x the 3 RQ2 arms, with exactly the RQ2 settings. Pass criteria fixed before the run (section 13); rewards are not used for the decision.",
+  "description": "FAILED in its English arm (2026-10-29): Fidelity pilot for amendment A1 (language-only personas; PREREGISTRATION section 13). NOT confirmatory and never pooled with rq2a: two judge-free retail test tasks outside RQ2's first 12 - 53 (personas lisa_en_v1 / rishika_hindi_v1, as on 10 of RQ2's 12 tasks) and 56 (matt_en_v1 / imran_hindi_v1, as on tasks 33 and 49) - x 1 trial x the 3 RQ2 arms, with exactly the RQ2 settings. Pass criteria fixed before the run (section 13); rewards are not used for the decision. Result: en_pack task 53_en merged turns at customer turn 3; the 4 Hindi simulations were clean. Kept only as the record of that pilot (its Hindi arms use the final RQ2 settings); do not run.",
   "domain": "retail",
   "tau2_dir": "D:/Programming/Reaserch/tau2-bench-multilingual",
   "reference_tau2_dir": "D:/Programming/Reaserch/tau2-bench",

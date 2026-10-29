@@ -508,11 +508,13 @@ _TRANSFER_REQUEST_RE = re.compile(
 # A sentence end glued to the next sentence with no space ("handy.Okay", "hai.mujhe",
 # "है।मुझे"): what is left when the provider joins several simulator turns into one
 # message. Checked per whitespace token, never across tokens. Case-sensitive on purpose:
-# a capital after the stop marks a new English sentence; romanized Hindi is typed in
-# lower case, so a run of 2+ lower-case letters after the stop also counts.
+# a capital after the stop marks a new English sentence (also after a digit, "8484.Okay",
+# or a closing bracket or quote, "file.)The"; a decimal never has a letter after the dot);
+# romanized Hindi is typed in lower case, so a run of 2+ lower-case letters after the
+# stop also counts.
 _MERGE_GLUE_RES: tuple[re.Pattern[str], ...] = (
-    re.compile(r"(?<=[a-z)’'\"”])[.!?](?=[A-Z][a-z])"),
-    re.compile(r"(?<=[a-z])[.!?](?=[a-z]{2,})"),
+    re.compile(r"(?<=[a-z0-9)’'\"”])[.!?][)\]’'\"”]?(?=[A-Z][a-z]|I\b|I[’'])"),
+    re.compile(r"(?<=[a-z0-9])[.!?](?=[a-z]{2,})"),
     re.compile(r"[।!?](?=[ऀ-ॿ])"),
 )
 # Tokens where a dot between letters is normal: emails, links, domains.

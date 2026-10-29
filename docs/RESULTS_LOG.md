@@ -319,7 +319,57 @@ remains possible with persona-lite, so `merged_turns` / `first_turn_stop` are re
 sensitivity analysis. Also seen: persona `rishika_hindi_v1` slipped once into masculine agreement
 ("मैं बस चाहता हूँ") in the code-mixed pilot.
 
-Pilot `rq2pilot2` result: pending (needs a fresh gpt-oss-120b quota window).
+## 2026-10-29: pilot rq2pilot2 fails in English only; A1 revised to a plain English control
+
+Pilot `rq2pilot2` (tasks 53 and 56, outside RQ2's 12, x 1 trial x 3 arms, language-only personas in
+all arms, default effort; criteria fixed in PREREGISTRATION section 13 before the run; rewards not
+used). Every transcript was read.
+
+| Arm | Task 53 | Task 56 | Simulator tokens per simulation |
+|---|---|---|---|
+| `en_pack` (lisa / matt, clause 0 only) | **merged turn** at customer turn 3 | clean, 6 turns | 5.7K, 7.7K |
+| `hi_romanized` (rishika / imran) | clean, 6 turns; leak share 0.04 | clean, 7 turns; leak share 0.06 | 18.1K, 19.1K |
+| `hi_code_mixed` | no merge, 18 turns (see below) | clean, 5 turns | 65.3K, 13.5K |
+
+- The merge (`53_en`, turn 3): "...refund back to the card ending in 8484.Okay, great. I'll need to
+  verify a few more details before we can process that refund. Could you please confirm the last four
+  digits...?...The last four digits are 8484, and the order number is #W3916020.I don't actually
+  remember the email..." The simulator wrote the agent's next turn and its own answers into one
+  customer message.
+- **Detector gap found and fixed:** `merged_turns` missed it because the glued stop follows a digit
+  ("8484.Okay") and a closing bracket ("file.)The"); both now count (a decimal never has a letter after
+  the dot). Re-screen with the fixed detector: RQ1 still 1 merged message in 174 ("yes.yes."), pilot1
+  0, the earlier `rq2pilot` English merge and this one flagged.
+- `hi_code_mixed` task 53: the agent looped ("do you agree? (yes/no)" about 10 times, its return tool
+  failed). The customer's last message then partly spoke as the agent ("मैं रिफंड की प्रक्रिया अभी शुरू
+  कर रहा/रही हूँ ... 5-7 कामकाजी दिनों") and hedged gender ("चुका/चुकी"), and drifted into Devanagari
+  (leak share 0.62). Not a pilot criterion (the agent had dealt with the request and was stuck);
+  noted as a fidelity issue for the code-mixed arm.
+- Gender agreement was correct elsewhere (Sofia "chahti hoon", Ivan "chahta hoon").
+
+Verdict: **failed** (criterion "no merged_turns", English arm). The Hindi arms passed every criterion.
+The run summary printed success counts; they were not used.
+
+Decision (the author, 2026-10-29): English arm `en_plain` = tau2's standard English user prompt with
+no persona (0 merged turns in 87 gpt-oss-120b RQ1 simulations; 0 of 8 in the ablation); Hindi arms keep
+the language-only personas exactly as piloted (same config hash, so `rq2pilot2`'s Hindi cells count as
+their pilot). The branch refuses `retail_en` without a persona (`PersonaResolutionError`; the first
+`rq2pilot3` attempt stopped at start-up, no simulation), so `en_plain` uses the base `retail` task set
+(same tasks; identical criteria, scenario and initial state). English-only pilot `rq2pilot3` (tasks 53,
+55, 56, 61, 64, 65) with criteria in section 13.
+
+Pilot `rq2pilot3` (`en_plain` = base `retail` tasks, no persona; tasks 53, 55, 56, 61, 64, 65 x 1
+trial; every transcript read; rewards not used): **0 of 6 merged turns, 0 of 6 first-turn stops** (34
+customer turns); turn-taking normal (4-8 customer turns). Criterion 3 failed in 2 of 6: task 53 ("Yes,
+please proceed with the return of the bicycle ... Thank you!###STOP###") and task 65 ("yes
+###STOP###"), both agreeing to a pending write in the same message as `###STOP###` (flagged
+`premature_stop`), i.e. the known gpt-oss behaviour of RQ1 (11/87 on `main`), not the branch error.
+None of the 4 Hindi pilot simulations of `rq2pilot2` had it. Tokens per simulation 3.3K-18.3K (mean
+7.2K).
+
+Decision (the author, 2026-10-29): proceed. A1 is final (PREREGISTRATION section 13; criterion 3 noted
+as too broad in section 12), with `premature_stop` added to the per-arm reporting, the sensitivity
+analysis and the 10-point caveat rule. RQ2 starts after the author commits and tags `prereg-v2`.
 
 ## Engineering notes that affect results
 

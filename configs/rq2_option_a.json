@@ -7,7 +7,7 @@
   "tau2_env": {
     "TAU2_PERSONA_CLAUSES": "first"
   },
-  "tau2_env_notes": "Language-only personas (PREREGISTRATION section 13, amendment A1): with patches/tau2-multilingual-8ff48b8-language-only-personas.patch applied, the persona block keeps the gender line and pragmatics clause 0 (the language profile) and drops the conditional attitude clauses, which made gpt-oss-120b merge turns (docs/RESULTS_LOG.md, 2026-10-26).",
+  "tau2_env_notes": "Language-only personas for the Hindi arms (PREREGISTRATION section 13, amendment A1): with patches/tau2-multilingual-8ff48b8-language-only-personas.patch applied, the persona block keeps the gender line and pragmatics clause 0 (the language profile) and drops the conditional attitude clauses, which made gpt-oss-120b merge turns (docs/RESULTS_LOG.md, 2026-10-26 and 2026-10-29). No effect on en_plain, which has no persona.",
   "agent": {
     "name": "qwen4b",
     "llm": "openai/qwen3-4b",
@@ -44,13 +44,12 @@
   "extra_tau2_args": [],
   "conditions": [
     {
-      "name": "en_pack",
-      "task_set_name": "retail_en",
-      "task_id_suffix": "_en",
-      "user_persona_id": "en",
+      "name": "en_plain",
+      "task_set_name": "retail",
+      "task_id_suffix": "",
       "tokens_per_task_estimate": 13000,
       "enabled": true,
-      "notes": "English language pack (matched control: same persona machinery as the Hindi arms). Estimate = RQ1 gpt-oss-120b English cost (11,812 measured) padded ~10%."
+      "notes": "English control: the domain's base retail task set (ids without suffix; run_grid checks they match retail_en/retail_hi in evaluation_criteria, user_scenario and initial_state) with tau2's standard English user prompt and no persona (amendment A1, PREREGISTRATION section 13). The branch refuses retail_en without a persona. The English pack personas made gpt-oss-120b merge turns, also in their language-only form (pilot rq2pilot2). Same branch commit as the Hindi arms. Estimate = RQ1 gpt-oss-120b English cost (11,812 measured) padded ~10%."
     },
     {
       "name": "hi_native",

@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import json
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -905,20 +906,25 @@ def test_shipped_rq2_config_is_option_a_with_english_arm():
     assert config.tasks == rg.TaskSource(split="test", exclude_nl_assertions=True, limit=12)
     assert (config.num_trials, config.seed, config.max_concurrency) == (2, 300, 1)
     assert {c.name: c.enabled for c in config.conditions} == {
-        "en_pack": True,
+        "en_plain": True,
         "hi_native": False,
         "hi_romanized": True,
         "hi_code_mixed": True,
     }
     by_name = {c.name: c for c in config.conditions}
-    assert by_name["en_pack"].tokens_per_task_estimate == 13000
+    assert by_name["en_plain"].tokens_per_task_estimate == 13000
+    # Amendment A1: the English control has no persona (tau2's standard English user).
+    assert by_name["en_plain"].user_persona_id is None
+    # The branch refuses retail_en without a persona, so en_plain uses the base task set.
+    assert (by_name["en_plain"].task_set_name, by_name["en_plain"].task_id_suffix) == ("retail", "")
+    assert by_name["hi_romanized"].user_persona_id == "hi"
     assert by_name["hi_romanized"].tokens_per_task_estimate == 42000
     assert by_name["hi_code_mixed"].tokens_per_task_estimate == 42000
     assert config.tau2_dir is not None and "multilingual" in config.tau2_dir
     assert config.reference_tau2_dir is not None
     conditions = rg._selected_conditions(config, None)
     assert [name for *_, name in rg.selected_cells(config, sims, conditions)] == [
-        "rq2a_qwen4b_gptoss120b_en-pack_test-nonl-first12_t2_s300_c70675c",
+        "rq2a_qwen4b_gptoss120b_en-plain_test-nonl-first12_t2_s300_c1a8dad",
         "rq2a_qwen4b_gptoss120b_hi-romanized_test-nonl-first12_t2_s300_c9f6a09",
         "rq2a_qwen4b_gptoss120b_hi-code-mixed_test-nonl-first12_t2_s300_c0da38e",
     ]
@@ -927,16 +933,22 @@ def test_shipped_rq2_config_is_option_a_with_english_arm():
 
 def test_shipped_rq2_pilot_matches_rq2_except_tasks_and_trials():
     rq2 = rg.load_config(REPO_ROOT / "configs" / "rq2_option_a.json")
-    pilot = rg.load_config(REPO_ROOT / "configs" / "rq2_pilot_lite.json")
-    assert pilot.experiment == "rq2pilot2" != rq2.experiment
-    assert pilot.tasks == rg.TaskSource(ids=("53", "56"), exclude_nl_assertions=True)
+    pilot = rg.load_config(REPO_ROOT / "configs" / "rq2_pilot_en_plain.json")
+    assert pilot.experiment == "rq2pilot3" != rq2.experiment
+    ids = ("53", "55", "56", "61", "64", "65")
+    assert pilot.tasks == rg.TaskSource(ids=ids, exclude_nl_assertions=True)
     assert (pilot.num_trials, pilot.seed) == (1, rq2.seed)
     assert pilot.simulators == rq2.simulators and pilot.agent == rq2.agent
-    assert pilot.conditions == rq2.conditions and pilot.tau2_env == rq2.tau2_env
+    assert pilot.tau2_env == rq2.tau2_env
+    # Same condition settings as RQ2; only en_plain is enabled in this pilot.
+    assert [replace(c, enabled=True) for c in pilot.conditions] == [
+        replace(c, enabled=True) for c in rq2.conditions
+    ]
+    assert [c.name for c in pilot.conditions if c.enabled] == ["en_plain"]
     # Same cell settings -> same config hash suffix, but never the same run name.
     sims = rg._selected_simulators(pilot, None)
     names = [n for *_, n in rg.selected_cells(pilot, sims, rg._selected_conditions(pilot, None))]
-    assert all(n.startswith("rq2pilot2_") for n in names) and len(names) == 3
+    assert names == ["rq2pilot3_qwen4b_gptoss120b_en-plain_ids-fb92ea13-nonl_t1_s300_c1a8dad"]
 
 
 def test_condition_mismatches_against_the_real_hindi_smoke_run():

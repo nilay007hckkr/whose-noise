@@ -512,6 +512,11 @@ MERGED_EN = (
     [
         (MERGED_EN, "handy.Okay,"),
         ("yes.yes.", "yes.yes."),  # RQ1 gpt-oss-120b task 102 trial 0
+        # rq2pilot2 en_pack task 53_en, customer turn 3: the stop follows a digit
+        ("back to the card ending in 8484.Okay, great. I'll need", "8484.Okay,"),
+        ("on file.)The last four digits are 8484", "file.)The"),
+        ("order #W3916020.I don't remember", "#W3916020.I"),
+        ("It cost $12.50.Okay?", "$12.50.Okay?"),
         ("Thanks!Bye.", "Thanks!Bye."),
         ("theek hai.mujhe aur kuch nahi chahiye", "hai.mujhe"),
         ("ठीक है।मुझे और कुछ नहीं चाहिए", "है।मुझे"),
@@ -528,7 +533,9 @@ def test_merged_turn_cue_positive(text: str, cue: str) -> None:
         "My email is mei.kovacs@example.com.",
         "It's on www.example.com, I think.",
         "The shop is example.co.in.",
-        "It cost $12.50.Okay?",  # digit before the stop: not checked
+        "It cost $12.50, okay?",  # decimals: a digit after the dot
+        "Version 2.0 is fine. Order #W123. Thanks!",
+        "I paid 1.5k.",
         "I live in the U.S. Okay?",
         "Hmm...Okay, fine.",
         "Yes. Okay. Thanks!###STOP###",

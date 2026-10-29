@@ -211,15 +211,17 @@ data were already being collected. They are listed so that RQ1 can be read with 
 | 2026-10-26 | 5, 9 | A first fix, simulator `reasoning_effort: "low"`, was tried in pilot `rq2pilot` (task 53 x 1 trial x 3 arms) and failed its pass criteria (fixed in advance): `en_pack` merged turns at customer turn 2 and `hi_romanized` ended the call at turn 2. The fix was withdrawn; `configs/rq2_pilot_low_effort.json` is kept only as the record | An ablation on the failing turn showed that the persona block, not the reasoning effort, causes the error (`docs/RESULTS_LOG.md`) |
 | 2026-10-26 | 8 | New fidelity screens `merged_turns` and `first_turn_stop` (`whose_noise.fidelity`). Applied to RQ1: 0 first-turn stops in 174 simulations; 1 merged message ("yes.yes.", gpt-oss-120b task 102 trial 0, no extra content) | Detect the error in every arm |
 | 2026-10-26 | 5, 6, 8, 9, 13 | RQ2 is amended by **A1** (section 13): language-only personas in all arms, everything else as frozen | Decided by the author on 2026-10-26, before any RQ2 data |
+| 2026-10-29 | 5, 9, 13 | Pilot `rq2pilot2` (language-only personas in all arms) failed in its English arm: `en_pack` task 53 merged turns at customer turn 3; the 4 Hindi simulations were clean. A1 revised: the English arm becomes `en_plain` (base `retail` task set, tau2's standard English user prompt, no persona); the Hindi arms keep the language-only personas; new English-only pilot `rq2pilot3` | Decided by the author on 2026-10-29, before any RQ2 data. The plain English prompt had 0 merged turns in 87 gpt-oss-120b RQ1 simulations |
+| 2026-10-29 | 13 | Pilot `rq2pilot3` (`en_plain`, 6 tasks) passed the merged-turn and first-turn criteria (0 of 6) but not criterion 3: in 2 of 6 (tasks 53, 65) the customer agreed to the pending write and sent `###STOP###` in the same message. The author proceeds with A1 as final and adds `premature_stop` to its reporting rules (item 5) | This is the known gpt-oss-120b behaviour of RQ1 (11 of 87 English simulations on `main`, same prompt), not the branch error the pilots were for; criterion 3 was written to catch the branch's early ends (e.g. stopping in the middle of authentication) and was too broad. Decided by the author on 2026-10-29, before any RQ2 data |
 
-## 13. Amendment A1: language-only personas (DRAFT, to be frozen as tag `prereg-v2`)
+## 13. Amendment A1: plain English control, language-only Hindi personas (FINAL, tag `prereg-v2`)
 
-> **Status: DRAFT (2026-10-26).** It becomes binding when the pilot below passes and the author
-> commits it with the git tag `prereg-v2`, **before the first RQ2 simulation**. No RQ2 data exist
-> when it is written (the 2 excluded simulations of section 12 contain no conversation). RQ2's
-> hypotheses (H2, H2b, H2e and the rest of sections 2, 6, 7, 10, 11) stay confirmatory under
-> prereg-v1 as amended by A1. Section 12's rule ("an analysis affected by a deviation is
-> exploratory") applies to changes made after `prereg-v2`.
+> **Status: FINAL (2026-10-29; drafted 2026-10-26).** Binding from the commit tagged
+> `prereg-v2`, which the author makes **before the first RQ2 simulation**. No RQ2 data exist when it is written (the 2 excluded simulations of section 12
+> contain no conversation; pilots are never RQ2 data). RQ2's hypotheses (H2, H2b, H2e and the rest
+> of sections 2, 6, 7, 10, 11) stay confirmatory under prereg-v1 as amended by A1. Section 12's
+> rule ("an analysis affected by a deviation is exploratory") applies to changes made after
+> `prereg-v2`.
 
 **Why.** On the `tau-multilingual` branch the user-simulator prompt carries the language-pack
 persona. Its conditional attitude clauses (example openings, closings, frustration stages) made
@@ -228,36 +230,67 @@ first message: 6 of 8 first-turn calls broken with `lisa_en_v1`, the English per
 RQ2 tasks. Removing the persona block removed the error at the failing turn of the low-effort pilot
 (0 of 8, versus 5 of 8 with it); keeping only the language-profile clause gave 1 broken turn in 11
 over three test points (versus 7 of 15 with the full block); the full Hindi persona at default
-effort was not broken (0 of 6). Left as is, the error would hit the English control much more than the Hindi arms and bias
-H2. Full numbers: `docs/RESULTS_LOG.md`, 2026-10-26.
+effort was not broken (0 of 6). In pilot `rq2pilot2` (language-only personas in all arms, tasks 53
+and 56) the English arm still merged turns once (task 53, customer turn 3: the simulator wrote the
+agent's next turn and its own answers into one message), while the 4 Hindi simulations (36 customer
+turns) were clean. Left as is, the error would hit the English control much more than the Hindi
+arms and bias H2. Full numbers: `docs/RESULTS_LOG.md`, 2026-10-26 and 2026-10-29.
 
 **Change.**
 
-1. **Language-only personas in all three arms.** The branch is run with
+1. **English arm `en_plain` replaces `en_pack`.** `--task-set-name retail` (the domain's base task
+   set, ids without a suffix) **without** `--user-persona-id`, on the same branch commit. The branch
+   refuses `retail_en` without a persona; the base tasks are the same tasks (`run_grid.py` checks
+   that `evaluation_criteria`, `user_scenario` and `initial_state` are identical to `retail_en` and
+   `retail_hi`). This gives tau2's standard English user prompt (the `main` prompt plus the branch's
+   one-line special-token note): no persona block, no gender line, no language directive.
+   That prompt had 0 merged turns in the 87 gpt-oss-120b RQ1 simulations. Everywhere this document
+   says `en_pack` for RQ2 (H2, H2b, H2e, sections 6, 7, 10, 11), read `en_plain`.
+2. **Language-only personas in the two Hindi arms.** The branch is run with
    `patches/tau2-multilingual-8ff48b8-language-only-personas.patch` applied and
    `TAU2_PERSONA_CLAUSES=first` (`tau2_env` in `configs/rq2_option_a.json`). The persona block then
    keeps the gender-agreement line and pragmatics clause 0, the persona's language profile, and
    drops the other clauses (conditional attitude realizations: openings, closings, refusals,
    frustration, spelling conventions, and the English-tolerance clause). The Hindi localization
    block, the target-language directive, the input-style block and the final reminder are
-   unchanged. For RQ2's personas, clause 0 is: `lisa_en_v1` "fast, clipped, Standard American
-   English with a slight New Jersey edge"; `matt_en_v1` "clear, Standard American English with a
-   flat Midwestern accent"; `rishika_hindi_v1` "dense urban Hinglish ... roughly 25-30% English
+   unchanged. Clause 0 is: `rishika_hindi_v1` "dense urban Hinglish ... roughly 25-30% English
    insertions"; `imran_hindi_v1` "Urdu-inflected Hindi (Devanagari) with Persian-Arabic
-   vocabulary". Side effect, accepted: the arms now differ in language profile only, not in
-   attitude scripts, which makes H2 a cleaner language contrast.
-2. **Everything else as frozen:** gpt-oss-120b with the section 5 arguments (default reasoning
-   effort), agent, tasks, arms, R = 2, seed, flags, analysis plan, stopping and missing-data rules.
-3. **Reporting.** `merged_turns` and `first_turn_stop` are reported per arm with the other fidelity
-   screens. The main analysis keeps every valid simulation (section 8). A sensitivity analysis
-   (exploratory) repeats H2 and H2b without the simulations flagged by either screen. If the
-   flagged rate differs between a Hindi arm and `en_pack` by more than 10 points, H2/H2b are
-   reported with that caveat, as in section 11.
-4. **Pilot `rq2pilot2`** (`configs/rq2_pilot_lite.json`; not confirmatory, never pooled): tasks 53
-   (personas `lisa_en_v1` / `rishika_hindi_v1`) and 56 (`matt_en_v1` / `imran_hindi_v1`), both
-   judge-free test tasks outside RQ2's 12, x 1 trial x the 3 arms, with exactly the RQ2 settings.
-   **Pass criteria (fixed before it runs):** in all 6 simulations, no `merged_turns` and no
-   `first_turn_stop`; no call ended by the customer before the agent has dealt with the request
-   (judged by reading every transcript); `hi_romanized` script-leak share <= 0.5. Rewards are not
-   looked at for the decision. If any criterion fails, RQ2 does not start and the author decides
-   again. The pilot also re-measures the token cost per simulation for the budget.
+   vocabulary". The switch has no effect on `en_plain`.
+3. **Accepted asymmetry.** The Hindi arms carry a language specification (gender line, language
+   profile, glossary, target-language directive, input style); the English arm carries none,
+   because English is the prompt's own language. Neither side has attitude scripts. H2 therefore
+   compares the benchmark's standard English user with a Hindi/Hinglish user defined by language
+   alone; the language specification is part of the Hindi condition.
+4. **Everything else as frozen:** gpt-oss-120b with the section 5 arguments (default reasoning
+   effort), agent, tasks, R = 2, seed, flags, analysis plan, stopping and missing-data rules.
+5. **Reporting.** `merged_turns`, `first_turn_stop` and `premature_stop` (strict: the customer
+   agrees to a pending write and sends `###STOP###` before it runs) are reported per arm with the
+   other fidelity screens. The main analysis keeps every valid simulation (section 8). A
+   sensitivity analysis (exploratory) repeats H2 and H2b without the simulations flagged by any of
+   the three screens. If the rate of any of these screens differs between a Hindi arm and
+   `en_plain` by more than 10 points, H2/H2b are reported with that caveat, as in section 11,
+   because the contrast would then partly measure simulator behaviour rather than the agent.
+6. **Pilots** (not confirmatory, never pooled with RQ2).
+   - `rq2pilot2` (`configs/rq2_pilot_lite.json`, 2026-10-29): tasks 53 and 56 x 1 trial x 3 arms,
+     language-only personas in all arms. Failed in `en_pack` (1 merged turn); the Hindi arms passed
+     every criterion (no merged turns, no first-turn stop, no early end; `hi_romanized` script-leak
+     share 0.04 and 0.06). Its Hindi cells have exactly the final RQ2 settings (same config hash),
+     so they count as the Hindi pilot.
+   - `rq2pilot3` (`configs/rq2_pilot_en_plain.json`): `en_plain` only, judge-free test tasks 53,
+     55, 56, 61, 64, 65 (outside RQ2's 12) x 1 trial, RQ2 settings. **Pass criteria (fixed before
+     it runs):** in all 6 simulations, no `merged_turns` and no `first_turn_stop`, and no call ended
+     by the customer before the agent has dealt with the request, judged by reading every
+     transcript. Rewards are not used for the decision. If it passes, A1 is final and the author
+     tags `prereg-v2`; if not, RQ2 does not start and the author decides again.
+     **Result (2026-10-29):** 0 of 6 merged turns and 0 of 6 first-turn stops (34 customer
+     turns). Criterion 3 failed in 2 of 6 (tasks 53 and 65): the customer agreed to the pending
+     write and sent `###STOP###` in the same message, flagged by `premature_stop`. This is the
+     known RQ1 behaviour of gpt-oss-120b with this prompt (11 of 87 English simulations on
+     `main`), not the branch error; criterion 3 was too broad. The author decided to proceed and
+     to measure premature stops per arm (item 5; section 12). A first attempt on 2026-10-29
+     stopped at start-up (`retail_en` without a persona is refused), before any simulation.
+7. **Budget.** Measured in `rq2pilot2` (simulator tokens per simulation): English 5.7K-7.7K,
+   `hi_romanized` 18.1K-19.1K, `hi_code_mixed` 13.5K-65.3K (the high one is a 18-turn loop with a
+   stuck agent); `rq2pilot3`: `en_plain` 3.3K-18.3K (mean 7.2K). The per-arm estimates in the
+   config (13K / 42K / 42K) stay as conservative planning values; one task per day (all three
+   arms, 2 trials) remains the schedule.
