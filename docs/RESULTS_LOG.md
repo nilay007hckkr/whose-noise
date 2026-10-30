@@ -371,6 +371,29 @@ Decision (the author, 2026-10-29): proceed. A1 is final (PREREGISTRATION section
 as too broad in section 12), with `premature_stop` added to the per-arm reporting, the sensitivity
 analysis and the 10-point caveat rule. RQ2 starts after the author commits and tags `prereg-v2`.
 
+## 2026-10-30: RQ3 set up (tau2-bench PR #702 two-simulator test)
+
+Context: PR #702 (m4xkushnir) ports PR #297's two completion lines to the 2.0 text scaffolds and credits
+this project's 11/87 vs 0/87 result; he hand-read all 99 flagged leaderboard runs with this project's two
+criteria (97 on an expected action, 74 where the early stop was the deciding failure) and asked for the
+two-simulator run. The author chose to run RQ3 before RQ2, full size (PREREGISTRATION section 14).
+
+- Checkouts: `tau2-bench-v2-base` at `7aad81c` (the PR commit's parent) and the worktree
+  `tau2-bench-v2-fix` at `2fb1ca5`; `git diff` between them = the PR's 7 files. `uv sync --extra voice`
+  in both (24 min first install). `.env` copied (git-ignored).
+- The 29 judge-free retail test tasks are identical on 2.0 (ids, `evaluation_criteria`,
+  `user_scenario`, `initial_state`).
+- Rendered simulator prompts (task 18): `base` vs `fix` differ by exactly the two PR lines. `base` vs
+  RQ1 (`4ce7c03`): 2.0 adds an address-component-order line and an empty "## Persona Guidelines"
+  heading, so RQ1 is not the baseline.
+- 2.0 results record `info.git_commit`; `guideline_template_version` is `language-guidelines-v4` in both
+  versions (the gap noted on the PR), so runs are identified by commit.
+- Smoke test (train task 0 x 1 trial x 2 versions x 2 simulators): 4 simulations, 0 infra errors;
+  loader and fidelity screens work. Outcomes not used. tau2 2.0 logs a harmless
+  `get_response_cost ... LLM Provider NOT provided` error for the local agent (cost lookup only).
+- Schedule: `--task-chunk k/15` (2 tasks per day; 15 days), both versions and both simulators each day,
+  version order alternating.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in

@@ -1,0 +1,55 @@
+{
+  "experiment": "rq3smokebase",
+  "description": "RQ3 smoke test (PREREGISTRATION section 14; not confirmatory, never pooled), version 'base': judge-free retail TRAIN task 0 x 1 trial x both simulators, only to check the tau2 2.0 install, the runner and the results loader. Outcomes are not used.",
+  "domain": "retail",
+  "tau2_dir": "D:/Programming/Reaserch/tau2-bench-v2-base",
+  "agent": {
+    "name": "qwen4b",
+    "llm": "openai/qwen3-4b",
+    "llm_args": {
+      "api_base": "http://127.0.0.1:8080/v1",
+      "api_key": "local",
+      "temperature": 0.0
+    }
+  },
+  "simulators": [
+    {
+      "name": "gptoss120b",
+      "llm": "groq/openai/gpt-oss-120b",
+      "llm_args": {
+        "temperature": 0.0,
+        "num_retries": 8,
+        "retry_strategy": "exponential_backoff_retry"
+      },
+      "daily_token_budget": 200000,
+      "tokens_per_task_estimate": 13000,
+      "daily_request_budget": 1000,
+      "requests_per_task_estimate": 20,
+      "notes": "Groq free plan: 30 RPM, 1K RPD, 8K TPM, 200K TPD. Measured 11,812 mean user tokens/simulation over 21 valid RQ1 chunk-1 sims (2026-10-12; reasoning tokens count); pilot had 6,097. Estimate padded ~10%."
+    },
+    {
+      "name": "qwen3.8-27b",
+      "llm": "groq/qwen/qwen3.8-27b",
+      "llm_args": {
+        "temperature": 0.0,
+        "num_retries": 8,
+        "retry_strategy": "exponential_backoff_retry"
+      },
+      "daily_token_budget": 200000,
+      "tokens_per_task_estimate": 10000,
+      "daily_request_budget": 1000,
+      "requests_per_task_estimate": 20,
+      "notes": "Groq free plan (verify limits in the Groq console). Measured 8,930 mean user tokens/simulation over 24 RQ1 chunk-1 sims (2026-10-12); 1-task smoke had 5,697. Groq ITPM limit for this model is 7,000."
+    }
+  ],
+  "tasks": {
+    "ids": [
+      "0"
+    ],
+    "exclude_nl_assertions": true
+  },
+  "num_trials": 1,
+  "seed": 300,
+  "max_concurrency": 1,
+  "extra_tau2_args": []
+}

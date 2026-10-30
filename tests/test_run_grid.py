@@ -1380,3 +1380,26 @@ def test_read_checkout_facts(tmp_path):
     assert rg.checkout_commit(tmp_path) == "c" * 40
     (git / "HEAD").write_text("ref: refs/heads/missing\n", encoding="utf-8")
     assert rg.checkout_commit(tmp_path) is None
+
+
+def test_shipped_rq3_configs_differ_only_in_checkout_and_name():
+    base = rg.load_config(REPO_ROOT / "configs" / "rq3_pr702_base.json")
+    fix = rg.load_config(REPO_ROOT / "configs" / "rq3_pr702_fix.json")
+    rq1 = rg.load_config(REPO_ROOT / "configs" / "rq1_simulator_swap.json")
+    assert (base.experiment, fix.experiment) == ("rq3base", "rq3fix")
+    assert base.tau2_dir.endswith("tau2-bench-v2-base") and fix.tau2_dir.endswith(
+        "tau2-bench-v2-fix"
+    )
+    assert replace(base, experiment="x", tau2_dir="x", description="") == replace(
+        fix, experiment="x", tau2_dir="x", description=""
+    )
+    # Same agent, simulator args, tasks, R and seed as RQ1 (PREREGISTRATION section 14).
+    assert base.agent == rq1.agent and base.tasks == rq1.tasks
+    assert (base.num_trials, base.seed, base.max_concurrency) == (3, 300, 1)
+    rq1_sims = {s.name: s for s in rq1.simulators if s.name in ("gptoss120b", "qwen3.8-27b")}
+    assert {s.name: s for s in base.simulators} == rq1_sims
+    assert not base.conditions and not base.tau2_env
+    for name in ("rq3_smoke_base.json", "rq3_smoke_fix.json"):
+        smoke = rg.load_config(REPO_ROOT / "configs" / name)
+        assert smoke.tasks == rg.TaskSource(ids=("0",), exclude_nl_assertions=True)
+        assert smoke.num_trials == 1 and smoke.experiment.startswith("rq3smoke")

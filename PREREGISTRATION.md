@@ -213,6 +213,7 @@ data were already being collected. They are listed so that RQ1 can be read with 
 | 2026-10-26 | 5, 6, 8, 9, 13 | RQ2 is amended by **A1** (section 13): language-only personas in all arms, everything else as frozen | Decided by the author on 2026-10-26, before any RQ2 data |
 | 2026-10-29 | 5, 9, 13 | Pilot `rq2pilot2` (language-only personas in all arms) failed in its English arm: `en_pack` task 53 merged turns at customer turn 3; the 4 Hindi simulations were clean. A1 revised: the English arm becomes `en_plain` (base `retail` task set, tau2's standard English user prompt, no persona); the Hindi arms keep the language-only personas; new English-only pilot `rq2pilot3` | Decided by the author on 2026-10-29, before any RQ2 data. The plain English prompt had 0 merged turns in 87 gpt-oss-120b RQ1 simulations |
 | 2026-10-29 | 13 | Pilot `rq2pilot3` (`en_plain`, 6 tasks) passed the merged-turn and first-turn criteria (0 of 6) but not criterion 3: in 2 of 6 (tasks 53, 65) the customer agreed to the pending write and sent `###STOP###` in the same message. The author proceeds with A1 as final and adds `premature_stop` to its reporting rules (item 5) | This is the known gpt-oss-120b behaviour of RQ1 (11 of 87 English simulations on `main`, same prompt), not the branch error the pilots were for; criterion 3 was written to catch the branch's early ends (e.g. stopping in the middle of authentication) and was too broad. Decided by the author on 2026-10-29, before any RQ2 data |
+| 2026-10-30 | 1, 14 | RQ3 added (amendment A2, section 14): the effect of tau2-bench PR #702's text-scaffold completion rules, 348 simulations on tau2 2.0. RQ3 is collected before RQ2; RQ2's design is unchanged | Decided by the author on 2026-10-30, before any RQ2 or RQ3 data. The PR's author accepted the offer to run this two-simulator test (tau2-bench #182, #702) |
 
 ## 13. Amendment A1: plain English control, language-only Hindi personas (FINAL, tag `prereg-v2`)
 
@@ -294,3 +295,71 @@ arms and bias H2. Full numbers: `docs/RESULTS_LOG.md`, 2026-10-26 and 2026-10-29
    stuck agent); `rq2pilot3`: `en_plain` 3.3K-18.3K (mean 7.2K). The per-arm estimates in the
    config (13K / 42K / 42K) stay as conservative planning values; one task per day (all three
    arms, 2 trials) remains the schedule.
+
+## 14. Amendment A2: RQ3, the text-scaffold completion rules (tau2-bench PR #702) (FINAL, tag `prereg-v3`)
+
+> **Status: FINAL (2026-10-30).** Binding from the commit tagged `prereg-v3`, which the author
+> makes after the smoke test below and **before the first RQ3 simulation**. RQ3 is collected
+> before RQ2 (decided by the author on 2026-10-30; RQ2's design and `prereg-v2` are unchanged).
+
+**Question (RQ3).** tau2-bench PR #702 (by m4xkushnir; a port of PR #297 to the 2.0 layout) adds two
+lines to the text user-simulator scaffolds (`_TEXT_PLAIN`, `_TEXT_TOOLS` in
+`src/tau2/user/guidelines.py`): "Do not end the conversation prematurely. Agreeing to an action is
+not the same as the action being completed ..." and "Before ending the conversation, verify that ALL
+items in your scenario instructions have been addressed ...". With the agent fixed, does this change
+(a) reduce gpt-oss-120b's premature stops, and (b) shrink the pass^1 gap between the two user
+simulators that RQ1 found?
+
+**Design.** 2 versions x 2 simulators x 29 tasks x 3 trials = **348 simulations**, fixed in advance.
+
+| Setting | Value |
+|---|---|
+| `base` version | tau2-bench `main` at the parent of the PR commit (`7aad81c`), checkout `tau2-bench-v2-base` |
+| `fix` version | PR #702 head `2fb1ca5`, checkout `tau2-bench-v2-fix` (git worktree of the same clone). `git diff base fix` = the PR's 7 files only |
+| Agent | as section 5 (Qwen3-4B-Instruct-2507 Q4_K_M, llama.cpp b11552, same flags, temperature 0) |
+| Simulators | `groq/openai/gpt-oss-120b` and `groq/qwen/qwen3.8-27b`, section 5 arguments (temperature 0, `num_retries 8`, exponential backoff, default reasoning effort) |
+| Tasks | the 29 judge-free retail test tasks of section 4 (on 2.0: same ids, and identical `evaluation_criteria`, `user_scenario`, `initial_state`; checked 2026-10-30) |
+| Trials, seed, concurrency | R = 3, seed 300, `--max-concurrency 1` |
+| Configs | `configs/rq3_pr702_base.json`, `configs/rq3_pr702_fix.json` (identical except `tau2_dir` and `experiment`) |
+| Blocking and schedule | `--task-chunk k/15` (2 tasks per chunk, the last one 1), one chunk per day: about 12 gpt-oss-120b simulations (~142K tokens) fit the 200K daily quota. Each day the same chunk runs in **both** versions and with both simulators, so day-to-day changes in the hosted simulators cannot line up with the version contrast; the version that runs first alternates (base first on odd `k`, fix first on even `k`). If the PR head changes later, RQ3 stays pinned to `2fb1ca5` |
+
+**Outcome and screens.** `y` as section 3 (tau2's own `is_successful`). Fidelity screens from
+`whose_noise.fidelity` at the commit tagged `prereg-v3`: `premature_stop` (strict),
+`stop_after_unexecuted_confirmation` (loose), `merged_turns`, `first_turn_stop`. Every simulation
+flagged by the strict or loose stop screen is read by hand and classified as in RQ1 (agreed to an
+expected action? was the early stop the deciding failure?).
+
+| ID | Type | Estimand | Prediction | Decision rule |
+|---|---|---|---|---|
+| H3a | confirmatory | `D_stop = rate_fix - rate_base` of the strict `premature_stop` screen, gpt-oss-120b | < 0 | Paired task-cluster bootstrap 95% CI (B = 10,000, seed 20261011) entirely below 0 |
+| H3b | confirmatory | `DiD = gap_base - gap_fix`, where `gap = pass^1(qwen3.8) - pass^1(gpt-oss)` within a version | > 0 (the simulator gap shrinks) | Paired task-cluster bootstrap 95% CI lower bound > 0 |
+| H3c | secondary | `pass^1(fix) - pass^1(base)` per simulator; pass^k (k = 1, 2, 3) per cell | none | Paired task-cluster bootstrap 95% CI |
+| H3d | secondary | Strict and loose stop rates, `merged_turns`, `first_turn_stop`, customer turns, `max_steps` terminations, infra errors, per cell | none | Descriptive, Wilson CIs; hand-read counts |
+| H3e | exploratory | Design A variance components (section 7) within each version; is the `task_x_simulator` component smaller with the fix? | none | 95% CI of the difference |
+
+Power (illustrative): RQ1 had 11/87 strict premature stops with gpt-oss on `main`; if the fix brings
+this near 0, H3a is well powered. H3b is a difference of differences on 29 tasks and is weakly
+powered; a null is reported as "not detected at this sample size". Missing data, re-runs and
+exclusions follow section 8 (infra errors re-run up to 3 extra attempts; a task still incomplete is
+dropped from every cell). Results are reported on PR #702 whatever their direction.
+
+**Smoke test (not confirmatory, never pooled).** One judge-free retail **train** task x 1 trial x 2
+versions x 2 simulators (4 simulations), run before the freeze, only to check the 2.0 install, the
+runner and the results loader. Its outcomes are not used.
+
+**Setup checks (2026-10-30, before the freeze).**
+
+- Smoke test (`configs/rq3_smoke_{base,fix}.json`, train task 0): 4 simulations, 0 infra errors; the
+  results load with `whose_noise.tau2_results` and the fidelity screens run.
+- Every 2.0 results file records the commit in `info.git_commit` (`7aad81c...` and `2fb1ca5...`),
+  which is how a run's version is identified. `guideline_template_version` records
+  `language-guidelines-v4` in both versions (the gap noted in the PR description and by its review
+  bot), so that field is not used.
+- The text user-simulator system prompt, rendered offline through `tau2.user.user_simulator.UserSimulator`
+  in each checkout (retail task 18), differs between `base` and `fix` by exactly the PR's two lines.
+- The 2.0 `base` prompt is **not** RQ1's prompt: against `4ce7c03` it adds one line ("preserve the
+  order of their components exactly as given" for addresses and other multi-part values) and an empty
+  "## Persona Guidelines" heading. RQ1's numbers are therefore context only; the RQ3 baseline is
+  `base`. A comparison of RQ1 with RQ3 `base` (same tasks, agent and simulators, different tau2
+  version) is exploratory.
+
