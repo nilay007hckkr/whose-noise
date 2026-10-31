@@ -394,6 +394,35 @@ two-simulator run. The author chose to run RQ3 before RQ2, full size (PREREGISTR
 - Schedule: `--task-chunk k/15` (2 tasks per day; 15 days), both versions and both simulators each day,
   version order alternating.
 
+## 2026-10-31: RQ3 day 1; stock tau2 2.0 adds a persona that makes gpt-oss merge turns
+
+`prereg-v3` tagged at `652b765` before the first RQ3 simulation. Day 1 = `--task-chunk 1/15` (tasks 5 and
+9), base first: 24 simulations, 0 infra errors. Only operational checks were looked at (hypothesis
+outcomes are analysed at the end; flagged stops will be hand-classified blind to version).
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 2/6 | 1/6 |
+| fix, gpt-oss-120b | 3/6 | 1/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+All 5 flags were read: real merges (several customer turns, sometimes the agent's lines, in one message;
+e.g. "...preferably with an AC adapter.My order number is 8020-MEI-2023.Can you confirm the
+exchange?Actually, never mind the bottle...###STOP###").
+
+Cause: the request tau2 2.0 actually sends (captured with `--verbose-logs`, task 9, both versions) carries
+the English pack's default caller persona even with no persona flag ("You are a female customer
+(she/her). Short punchy sentences are natural to this variety... When you open and get right to it,
+natural forms are 'Yeah, hi, so here's the problem'..."; `DEFAULT_LANGUAGE = "en"` in `tau2/config.py`,
+text from `data/tau2/multilingual/en/pack.yaml`). Replaying task 9's first turn at default effort:
+broken in 2 of 4 calls with the persona, 0 of 3 with the persona section removed, the same pattern as on
+the multilingual branch (2026-10-26). The base and fix requests differ by exactly the PR's two lines.
+My earlier setup check (offline render) missed the persona: erratum in PREREGISTRATION section 12.
+
+Decision (the author): continue RQ3 as frozen on stock 2.0; add an exploratory re-analysis without
+merged / first-turn-stop simulations; report the persona problem to the maintainers as its own issue.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
