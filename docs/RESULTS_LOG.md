@@ -423,6 +423,14 @@ My earlier setup check (offline render) missed the persona: erratum in PREREGIST
 Decision (the author): continue RQ3 as frozen on stock 2.0; add an exploratory re-analysis without
 merged / first-turn-stop simulations; report the persona problem to the maintainers as its own issue.
 
+## 2026-11-01: PR #702 head moved to 4bb86bb (metadata only); RQ3 stays at 2fb1ca5
+
+On 2026-10-31 the PR author pushed `4bb86bb` ("record the text scaffold revision on text runs"), fixing
+the review bot's finding. `git diff 2fb1ca5 4bb86bb` = `src/tau2/multilingual/runtime.py` (task context now
+records `guideline_template_version(mode)`, i.e. `language-guidelines-text-v5` for text runs) and its test.
+The prompt sent to the user simulator is unchanged (the PR author says the same about rendered prompts and
+the `text.json` binding hashes). RQ3 stays pinned to `2fb1ca5`, as PREREGISTRATION section 14 requires.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
