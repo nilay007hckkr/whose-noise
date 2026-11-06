@@ -44,3 +44,9 @@ project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
    ```
 
    Add `--dry-run` first to see the plan and the budget lines.
+
+3. Operational checks for the day's tasks (no outcomes printed), then read every merged-turn flag:
+
+   ```bash
+   uv run python scripts/rq3_daily_check.py <task ids of chunk k>
+   ```

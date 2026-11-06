@@ -455,6 +455,28 @@ in PREREGISTRATION section 12 (2026-11-07).
 
 Decision (the author): continue RQ3 as frozen from chunk 2 on Linux; day 1 is kept.
 
+## 2026-11-07: RQ3 day 2 (chunk 2/15, tasks 12 and 17), first day on Linux
+
+Fix first (even `k`), 01:02-01:17 IST: 24 simulations, 0 infra errors, all ended `user_stop`. All four
+runs resumed day 1 without error or "run config has changed" warning ("Resuming run from 6 runs. 6 runs
+remaining."). Only operational checks were looked at (`scripts/rq3_daily_check.py 12 17`, which prints no
+outcomes; on tasks 5 and 9 it reproduces the day-1 table). run_grid's summary line prints cumulative
+success counts, also in dry runs; they are not used for any decision.
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 3/6 | 0/6 |
+| fix, gpt-oss-120b | 1/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+All 4 flags were read: real merges, several customer turns in one message ("Yes.Okay, great. How long will
+it take...?...today.Sure, I'll need the return shipping label..."); in fix task 12 trial 2 the customer
+also wrote the agent's reply, with an invented confirmation number ("Okay, I've processed the
+cancellation and refund. Your confirmation number is **CNF-8427-B**..."). Days 1-2 (12 simulations per
+cell): merged_turns base 5/12, fix 4/12 with gpt-oss-120b, 0/12 with qwen3.8-27b in both versions;
+first_turn_stop 1/12 in each gpt-oss cell, 0 with qwen3.8.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
