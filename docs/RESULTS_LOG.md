@@ -521,6 +521,33 @@ below. Choices that section 14 leaves open, fixed here:
 - The script refuses partial data unless `--allow-partial` is given (outcomes wait for the end), and
   warns when an input's recorded tau2 commit does not match its version.
 
+## 2026-11-07: RQ2 analysis script frozen before any RQ2 data
+
+`scripts/analyze_rq2.py` (tag `rq2-analysis-v1`) implements sections 7, 8, 10 and 11 with amendment A1
+(`en_pack` read as `en_plain`). Tested only on synthetic results files (`tests/test_analyze_rq2.py`);
+no RQ2 data exist. Choices the pre-registration leaves open, fixed here:
+
+- Holm across H2, H2b, H2e: the three are ordered by a two-sided percentile-bootstrap p-value (twice the
+  smaller share of paired task-bootstrap draws on either side of 0); the i-th (i = 1, 2, 3) is decided by
+  the percentile CI at level 1 - 0.05 / (4 - i) from the same draws, step-down.
+- McNemar sensitivity on per-task majority verdicts: with R = 2 a task counts as passed only if both
+  trials pass. The pass^2 contrasts use `metrics.paired_bootstrap_diff(k=2)`.
+- Noise floor of `en_plain`: trials_per_run 2 (section 7 step 5) and 1 (section 2's "two identical single
+  runs"); the report sets each |Delta| against the trials_per_run = 2 band.
+- Section 11 infra rule: rates before re-runs when `--pre-rerun-infra` is given (counted from the run
+  logs), else the rates left in the files; the worst case turns (Hindi minus en_plain infra errors) Hindi
+  passes into failures (pooled pass rates).
+- Section 11 leak rule: Devanagari letters as a share of all customer letters in `hi_romanized`, pooled.
+- A1 item 5 caveat: any of merged turns, first-turn stops, premature stops differing from `en_plain` by
+  more than 10 points (pooled rates). Its exploratory re-analysis of H2 and H2b uses the tasks that keep at
+  least one simulation in both arms, without Holm.
+- The script refuses partial data unless `--allow-partial` (section 10) and checks per arm the recorded
+  task set, persona, text style, directive version, locale context, commit and the piloted run-name hash.
+- Observation: every run on the branch records `timeout: 2400` (the branch default; run_grid does not pass
+  `--timeout`, and the pilots ran the same way). Section 5 says tau2's timeout is not used: on the branch
+  a simulation longer than 40 minutes would be cut and graded as a failure. The longest pilot simulation
+  took 370 s; the report lists termination reasons per arm, so a cut would be visible.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
