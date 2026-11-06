@@ -10,13 +10,13 @@ Contents:
 2. pass^k
 3. Standard errors for repeated binary outcomes
 4. Variance components (Designs A and B)
-5. First-divergence attribution (planned)
+5. First-divergence attribution (implemented)
 6. tau2-bench facts that shape the design
 7. Fault-labelling rubric
 8. The `tau-multilingual` Hindi pack
 9. Budget arithmetic
 10. Sources and verification status
-11. Open questions
+11. Open questions (resolved)
 
 ---
 
@@ -163,7 +163,10 @@ the user and agent seeds separately, plus temperature > 0. That would be a diffe
 (sampling noise rather than serving noise). It is kept as future work. The code and its tests stay,
 because they validate the estimator on synthetic data.
 
-## 5. First-divergence attribution (planned, not yet implemented)
+## 5. First-divergence attribution
+
+> Implemented in `src/whose_noise/divergence.py`; for RQ1 it is the exploratory H1c section of
+> `results/rq1_analysis/report.md`. The design notes below are kept as written.
 
 Goal: attribute re-run noise (the residual in Design A) to the agent side or the simulator side,
 without seed control.
@@ -326,7 +329,14 @@ paper's body.
 | [llama.cpp server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md) | `seed` default -1; `cache_prompt` nondeterminism | yes |
 | tau2-bench source (local `main` @ 4ce7c03; `tau-multilingual` @ 8ff48b8e via raw files) | Seeding, judge, Hindi pack, CLI flags | yes (read directly) |
 
-## 11. Open questions (resolve before freezing the pre-registration)
+## 11. Open questions (resolved)
+
+> All five were settled before the pre-registration was frozen: (1) yes, the romanized Hindi
+> smoke run passed on 2026-10-12; (2) no, the agent is not deterministic at temperature 0 under
+> these serving settings (determinism audit, `docs/RESULTS_LOG.md` 2026-10-21), and the default
+> setting was kept and frozen (PREREGISTRATION section 5); (3) yes, qwen3.8-27b ran all of RQ1;
+> (4) the English control is tau2's plain English user (amendment A1); (5) the configs use the 29
+> judge-free ids. The questions below are kept as written.
 
 1. Does `--user-persona-id rishika_hindi_v1` with `--text-input-style romanized` run with
    `--task-set-name retail_hi` on a text run, and does the agent receive the agent language clause?
