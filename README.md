@@ -2,8 +2,10 @@
 
 **Whose noise is it?** This project splits the run-to-run variance of tau-bench verdicts into three parts: the user simulator, the agent, and the task. It does this for a small open agent (Qwen3-4B on a local llama.cpp server), talking to English users and to Hindi/Hinglish users who type in romanized, code-mixed text.
 
-> Status: pre-pilot. The code and tests exist, but there are **no results yet**. See
-> [Project status](#project-status) and [PREREGISTRATION.md](PREREGISTRATION.md) (DRAFT).
+> Status: **RQ1 is complete** ([report](results/rq1_analysis/report.md)). **RQ3** (the tau2-bench
+> PR #702 test) is collecting data, and **RQ2** (Hindi/Hinglish) follows it. The pre-registration is
+> frozen (tags `prereg-v1` to `prereg-v3`), and the RQ2 and RQ3 analysis scripts were frozen before
+> their data (tags `rq2-analysis-v1`, `rq3-analysis-v1`). See [Project status](#project-status).
 
 ---
 
@@ -42,8 +44,19 @@ tasks of the tau2 retail test split, how much of the verdict variance comes from
 more than the run-to-run noise floor estimated in RQ1? Does the language change the *share* of variance
 owned by the simulator?
 
-Hypotheses, the primary endpoint, the stopping rules and the analysis plan are in
-[PREREGISTRATION.md](PREREGISTRATION.md). That file is a DRAFT and gets frozen before the main runs.
+The English control is tau2's standard English user with no persona (amendment A1): the English pack's
+persona made gpt-oss-120b write several turns in one message.
+
+**RQ3: Does a simulator fix close the simulator gap?** RQ1 found that gpt-oss-120b, as the user, often
+agrees to a pending action and ends the call in the same message, so the agent never performs it
+(11 of 87 runs, 0 of 87 with qwen3.8-27b). tau2-bench
+[PR #702](https://github.com/sierra-research/tau2-bench/pull/702) adds two lines to the text simulator
+prompt against this. With the agent fixed, does it reduce those early stops, and does it shrink the gap
+between the two simulators?
+
+Hypotheses, the primary endpoints, the stopping rules and the analysis plans are in
+[PREREGISTRATION.md](PREREGISTRATION.md): frozen, with amendments A1 (RQ2) and A2 (RQ3) and a dated
+deviations log. Day-by-day records are in [docs/RESULTS_LOG.md](docs/RESULTS_LOG.md).
 
 ## Why it matters
 
@@ -75,7 +88,9 @@ gaps.
 
 ## Setup summary
 
-Full Windows instructions are in [docs/SETUP_WINDOWS.md](docs/SETUP_WINDOWS.md). In short:
+Full instructions: [docs/SETUP_LINUX.md](docs/SETUP_LINUX.md) (current machine, from 2026-11-07,
+including the daily runner) and [docs/SETUP_WINDOWS.md](docs/SETUP_WINDOWS.md) (RQ1, the pilots and RQ3
+day 1). In short:
 
 1. **tau2-bench** checked out next to this repo (`../tau2-bench`). It is v1.0.1, CLI `tau2`, installed with
    `uv sync --extra voice`. The extra is a workaround for a missing `websockets` dependency in the core
@@ -178,28 +193,25 @@ To compare Hindi and English, strip the `_hi` / `_en` id suffix before calling
 | `src/whose_noise/analyze.py` | CLI text report per run (`--fidelity` adds the simulator-fidelity section). |
 | `src/whose_noise/fidelity.py` | Deterministic, explainable per-simulation transcript checks: premature STOP after an unexecuted confirmation (strict and loose), customer transfer requests, turn counts, script leakage (Devanagari share in romanized/code-mixed runs, Latin share in native-script runs). |
 | `scripts/run_grid.py` | Builds and runs `tau2 run` commands from a JSON config, with a daily-budget guard and a secret scan (stdlib only). |
-| `configs/` | `pilot.json` (5 tasks x 3 trials), `rq1_simulator_swap.json` (29 judge-free test tasks x 3 trials x simulators), `rq2_option_a.json` (RQ2 Option A: first 12 judge-free test tasks x 2 trials x {en_pack, hi_romanized, hi_code_mixed}, gpt-oss-120b; `hi_native` defined but disabled). |
+| `scripts/analyze_rq1.py`, `analyze_rq2.py`, `analyze_rq3.py` | The pre-registered analysis of each study in one command (`report.md` + `results.json`); RQ2 and RQ3 refuse partial data. |
+| `scripts/study_day.sh`, `rq2_daily_check.py`, `rq3_daily_check.py` | Unattended daily collection (systemd timer, see `docs/SETUP_LINUX.md`) and its operational checks, which print no outcomes. |
+| `configs/` | `rq1_simulator_swap.json` (29 judge-free test tasks x 3 trials x simulators), `rq2_option_a.json` (first 12 of those x 2 trials x {en_plain, hi_romanized, hi_code_mixed}, gpt-oss-120b; `hi_native` defined but disabled), `rq3_pr702_{base,fix}.json` (PR #702 and its parent), pilots and smoke tests. |
 | `tests/` | Hand-computed expected values and synthetic data with known ground truth. |
 | `docs/RESEARCH_NOTES.md` | Statistics spec, tau2 seeding facts, design notes. |
 
 ## Project status
 
-No numbers are filled in until they come out of `analyze.py` on a committed `results.json`. Cells marked
-"-" have not been run.
+Agent everywhere: Qwen3-4B-Instruct-2507 (Q4_K_M, llama.cpp), temperature 0. Numbers are copied from the
+analysis reports; nothing is reported for a study before its data are complete.
 
-| Experiment | Agent | User simulator | Language | Tasks x trials | Valid sims | pass^1 [95% CI] | pass^3 | Flip rate | Infra errors |
-|---|---|---|---|---|---|---|---|---|---|
-| week2 smoke | Qwen3-4B | gpt-oss-120b | en | 3 x 1 | 2 of 3 | n/a (smoke) | - | - | 1 of 3 |
-| pilot1 (in progress, 12 of 15 sims) | Qwen3-4B | gpt-oss-120b | en | 5 x 3 | 6 (tasks 0, 1 only) | 0.500 (no CI: 2 tasks) | 0.000 | 2 of 2 tasks | 6 of 12 (NL-judge auth, see below) |
-| RQ1 simulator swap | Qwen3-4B | gpt-oss-120b / qwen3.8-27b / (gemini) | en | 29 x 3 each | - | - | - | - | - |
-| RQ2 Option A | Qwen3-4B | gpt-oss-120b | en_pack, hi (romanized), hi (code_mixed) | 12 x 2 each | - | - | - | - | - |
+| Study | Design | Status | Main results |
+|---|---|---|---|
+| RQ1 | 29 judge-free retail tasks x 3 trials x 2 user simulators (gpt-oss-120b, qwen3.8-27b), English, tau2 `main` | **Final** (2026-10-25), [report](results/rq1_analysis/report.md) | pass^1 0.310 [0.172, 0.448] with gpt-oss-120b vs 0.563 [0.391, 0.736] with qwen3.8-27b. Re-run component 0.0690 [0.0345, 0.1092] (H1a) and task x simulator component 0.0868 [0.0361, 0.1289] (H1b): both supported. Agree-and-stop before the write: 11/87 vs 0/87 |
+| RQ3 | tau2 2.0 with and without PR #702 x the same 2 simulators x 29 tasks x 3 trials (348 simulations) | Collecting, one 2-task chunk per day; outcomes are not looked at before the end | - |
+| RQ2 | First 12 of the tasks x 2 trials x {English plain, Hindi romanized, Hinglish code-mixed}, gpt-oss-120b, `tau-multilingual` branch | Queued after RQ3; pilots done | - |
 
-The week2 smoke run is a plumbing check (task 0 passed, task 1 failed, task 2 hit an infra error). It is
-not evidence about the agent. The pilot1 row is a partial snapshot taken on 2026-10-11 with `analyze.py`.
-Tasks 2-4 have NL assertions, and tau2 scores those with a hard-coded OpenAI judge. Without
-`OPENAI_API_KEY` that judge fails, and the whole conversation is discarded. Even at temperature 0, both
-tasks that did run flipped verdict across trials (task 0: 1/0/0, task 1: 1/0/1). That is the effect this
-project measures, but with 2 tasks it is an anecdote, not a result.
+Pilots and smoke tests (never pooled with study data) are described in PREREGISTRATION section 9 and
+amendment A1, and in [docs/RESULTS_LOG.md](docs/RESULTS_LOG.md).
 
 ## Where this breaks and why
 
