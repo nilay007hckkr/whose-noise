@@ -49,8 +49,9 @@ project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
    results files, starts and stops the agent server, runs both versions in the section 14 order and
    writes `../rq3_state/day_<date>_chunk<k>.log`. A systemd user timer starts it at minute 07 of every
    hour; it acts only 25 h after the last attempt began (stamp `../rq3_state/last_attempt`, set to
-   day 2's start, 2026-11-07 01:02 IST) and stops once all 29 tasks are complete. It runs while the
-   user is logged in (linger is off) and blocks sleep during a run. Units, outside the repo:
+   day 2's start, 2026-11-07 01:02 IST) and stops once all 29 tasks are complete. Linger is on
+   (`loginctl enable-linger`, 2026-11-07), so it also runs while the user is logged out, and it
+   blocks sleep during a run. Units, outside the repo:
 
    ```ini
    # ~/.config/systemd/user/rq3-day.service
