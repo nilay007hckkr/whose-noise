@@ -2,8 +2,8 @@
   "experiment": "rq2a",
   "description": "RQ2 Option A (chosen by the author 2026-10-20; PREREGISTRATION sections 6 and 9): the first 12 judge-free retail test tasks x 2 trials x 3 arms (en_pack, hi_romanized, hi_code_mixed), gpt-oss-120b user simulator, Qwen3-4B agent, all on the tau-multilingual branch. Confirmatory for H2/H2b at this (small) size; sample size fixed in advance, never extended because of interim results. hi_native is defined but disabled.",
   "domain": "retail",
-  "tau2_dir": "D:/Programming/Reaserch/tau2-bench-multilingual",
-  "reference_tau2_dir": "D:/Programming/Reaserch/tau2-bench",
+  "tau2_dir": "../tau2-bench-multilingual",
+  "reference_tau2_dir": "../tau2-bench",
   "tau2_env": {
     "TAU2_PERSONA_CLAUSES": "first"
   },

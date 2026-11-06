@@ -15,8 +15,11 @@ pilots and RQ3 day 1 ran on. Folder layout as on Windows, under `/home/nj/NILAY/
 | Line endings | both checkouts use `core.autocrlf=true`, so files have CRLF line endings as on Windows. tau2 stores sha256 hashes of the raw bytes of the language pack and rule files and refuses to resume a run when they change; with LF files they did not match day 1. Now `pack_sha256` = `cd14ad9a...` and `runtime_rules_sha256` = `794587eb...`, as in the Windows results. The text the models see is the same either way (YAML and Python read both line endings alike) |
 | llama.cpp | release b11552, official `llama-b11552-bin-ubuntu-cuda-12.8-x64.tar.gz` (sha256 `8443251b...ae7f`) + `cudart-llama-b11552-bin-ubuntu-cuda-12.8-x64.tar.gz` (sha256 `e8b04db5...a607`), both checked against the release digests; build 11552, commit `23b0202a1`, GNU 13.3.0. Windows used `win-cuda-12.4-x64` |
 | Model | `models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf`, unsloth revision `a06e946bb6`, 2,497,281,120 bytes, sha256 `3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597` (= the Hugging Face LFS id). Almost certainly the file used on Windows: the repo has had no commit since 2025-08-20 and `SETUP_WINDOWS.md` downloads from it, but the Windows copy's hash was not recorded |
+| `tau2-bench-multilingual` (RQ2) | shallow clone at `8ff48b8` with `core.autocrlf=true`, both `patches/tau2-multilingual-8ff48b8-*.patch` applied as uncommitted changes (as on Windows; the two patched files are byte-identical to the Windows copies, and the run-lock patch keeps `fcntl` on POSIX); `uv sync --extra voice` (Python 3.12.16), `uv.lock` unchanged |
+| `tau2-bench` (RQ1; RQ2's `reference_tau2_dir`) | shallow clone at `4ce7c03`, `core.autocrlf=true`; no environment needed (run_grid only reads its task files). RQ1's raw results under `data/simulations` are untouched |
+| `configs/rq2_option_a.json` | `tau2_dir` / `reference_tau2_dir` changed from Windows paths to `../tau2-bench-multilingual` / `../tau2-bench` (not part of run names; the dry run gives the pilots' cell hashes `c1a8dad`, `c9f6a09`, `c0da38e`) |
 
-Day-1 RQ3 results and both `.env` files were carried over from Windows unchanged. A tarball of every
+Day-1 RQ3 results, the RQ1 and RQ2-pilot results and the `.env` files were carried over from Windows unchanged. A tarball of every
 project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
 
 ## Daily run
@@ -45,21 +48,24 @@ project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
 
    Add `--dry-run` first to see the plan and the budget lines.
 
-   From chunk 3 on, `scripts/rq3_day.sh` does steps 1-3 by itself: it picks the next chunk from the
-   results files, starts and stops the agent server, runs both versions in the section 14 order and
-   writes `../rq3_state/day_<date>_chunk<k>.log`. A systemd user timer starts it at minute 07 of every
-   hour; it acts only 25 h after the last attempt began (stamp `../rq3_state/last_attempt`, set to
-   day 2's start, 2026-11-07 01:02 IST) and stops once all 29 tasks are complete. Linger is on
-   (`loginctl enable-linger`, 2026-11-07), so it also runs while the user is logged out, and it
-   blocks sleep during a run. Units, outside the repo:
+   From RQ3 chunk 3 on, `scripts/study_day.sh` does steps 1-3 by itself: it picks the next RQ3 chunk
+   from the results files or, once all 29 RQ3 tasks are complete, the next RQ2 task (all three arms
+   in one `run_grid --config configs/rq2_option_a.json --task-chunk k/12`, section 10), starts and
+   stops the agent server, runs the versions in the section 14 order and writes
+   `../rq3_state/day_<date>_<study>_chunk<k>.log`. A systemd user timer starts it at minute 07 of
+   every hour; it acts only 24 h after the last run ended (stamp `../rq3_state/last_attempt`; set to
+   the end of RQ3 day 2, 2026-11-07 01:17 IST), so one day's gpt-oss-120b tokens have left Groq's
+   rolling 24 h window before the next day starts, and it stops once RQ3 and RQ2 are complete.
+   Linger is on (`loginctl enable-linger`, 2026-11-07), so it also runs while the user is logged
+   out, and it blocks sleep during a run. Units, outside the repo:
 
    ```ini
-   # ~/.config/systemd/user/rq3-day.service
+   # ~/.config/systemd/user/study-day.service
    [Service]
    Type=oneshot
-   ExecStart=/usr/bin/systemd-inhibit --what=sleep:idle --who=whose-noise --why="RQ3 day" /home/nj/NILAY/Reaserch/whose-noise/scripts/rq3_day.sh
-   TimeoutStartSec=6h
-   # ~/.config/systemd/user/rq3-day.timer
+   ExecStart=/usr/bin/systemd-inhibit --what=sleep:idle --who=whose-noise --why="study day" /home/nj/NILAY/Reaserch/whose-noise/scripts/study_day.sh
+   TimeoutStartSec=8h
+   # ~/.config/systemd/user/study-day.timer
    [Timer]
    OnCalendar=*-*-* *:07:00
    Persistent=true
@@ -67,11 +73,12 @@ project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
    WantedBy=timers.target
    ```
 
-   Status: `systemctl --user list-timers rq3-day.timer`; stop: `systemctl --user disable --now rq3-day.timer`.
-   Test without running anything: `RQ3_DRY=1 scripts/rq3_day.sh`.
+   Status: `systemctl --user list-timers study-day.timer`; stop: `systemctl --user disable --now study-day.timer`.
+   Test without running anything: `STUDY_DRY=1 scripts/study_day.sh`.
 
 3. Operational checks for the day's tasks (no outcomes printed), then read every merged-turn flag:
 
    ```bash
    uv run python scripts/rq3_daily_check.py <task ids of chunk k>
+   uv run python scripts/rq2_daily_check.py <base task id>   # RQ2: per arm, plus script leakage
    ```

@@ -477,6 +477,28 @@ cancellation and refund. Your confirmation number is **CNF-8427-B**..."). Days 1
 cell): merged_turns base 5/12, fix 4/12 with gpt-oss-120b, 0/12 with qwen3.8-27b in both versions;
 first_turn_stop 1/12 in each gpt-oss cell, 0 with qwen3.8.
 
+## 2026-11-07: RQ2 set up on Linux and scheduled after RQ3; one daily runner for both
+
+- Checkouts: `tau2-bench-multilingual` at `8ff48b8` (CRLF, both patches; the patched `schema.py` and
+  `run_lock.py` are byte-identical to the Windows copies) and `tau2-bench` at `4ce7c03` (reference for
+  the base-task check). The RQ2 config's two Windows paths are now relative. Deviation row in
+  PREREGISTRATION section 12 (2026-11-07, RQ2).
+- Dry run of RQ2 task 1 (`--task-chunk 1/12`): base tasks identical to `main`, persona patch read
+  (`TAU2_PERSONA_CLAUSES=first`), 12/12 ids found in every arm; cell hashes equal the pilots'
+  (`c1a8dad`, `c9f6a09`, `c0da38e`), so RQ2 runs with the piloted settings. Planned 194K of the 200K
+  daily tokens (config estimates; the pilots used 13-19K per Hindi simulation, once 65K).
+- Existing `rq2a_*` folders: `en-pack_..._ca8f1b3` holds the 2 excluded simulations of 2026-10-26
+  (section 12); `hi-romanized_..._cb50a00` (pre-A1 hash) has 0 simulations. Neither is an RQ2 cell.
+- `scripts/rq2_daily_check.py`: per arm, simulations, termination reasons, merged turns, first-turn
+  stops and script-leak share; no outcomes. On the pilots it reproduces the 2026-10-29 numbers
+  (`hi_romanized` leak 0.04 and 0.06, `hi_code_mixed` task 53 0.62, `en_plain` 0/6 merged and 0/6
+  first-turn stops).
+- `scripts/rq3_day.sh` became `scripts/study_day.sh` (timer `study-day.timer`): the next RQ3 chunk, or
+  the next RQ2 task once RQ3 is complete. The gate is now 24 h after the last run *ended* (it was 25 h
+  after the last attempt began), so a day's gpt-oss-120b tokens have left Groq's rolling window before
+  the next day starts; first run at the 02:07 check on 2026-11-08 (RQ3 chunk 3). Both paths were tested
+  as dry runs.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
