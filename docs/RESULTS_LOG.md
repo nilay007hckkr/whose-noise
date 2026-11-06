@@ -431,6 +431,30 @@ records `guideline_template_version(mode)`, i.e. `language-guidelines-text-v5` f
 The prompt sent to the user simulator is unchanged (the PR author says the same about rendered prompts and
 the `text.json` binding hashes). RQ3 stays pinned to `2fb1ca5`, as PREREGISTRATION section 14 requires.
 
+## 2026-11-07: move to Linux; RQ3 resumes at chunk 2
+
+The Windows install was retired around 2026-11-02 (same laptop, now CachyOS Linux), so RQ3 paused
+after day 1 (2026-10-31). Rebuilt environment and daily commands: `docs/SETUP_LINUX.md`; deviation row
+in PREREGISTRATION section 12 (2026-11-07).
+
+- Agent: llama.cpp b11552, official `ubuntu-cuda-12.8-x64` build (release digests checked), same flags;
+  startup log shows the Windows serving setup (`n_slots = 4, n_ctx_slot = 16384, kv_unified = 'true'`).
+  Model sha256 `3605803b...` (unsloth repo unchanged since 2025-08-20).
+- **Line endings matter for resuming.** tau2 2.0 stores sha256 hashes of the raw bytes of the language
+  pack (`pack_sha256`) and the retail rule files (`runtime_rules_sha256`) in each results file and
+  refuses to resume when they change ("cannot resume changed language/task/persona content"). The
+  Windows checkouts had CRLF line endings, the fresh Linux clones LF, so day 2 would have stopped at
+  start-up. Converting the Linux files to CRLF reproduces both Windows hashes exactly (`cd14ad9a...`,
+  `794587eb...`), so the content is the same and only the line endings differ; the model-visible text is
+  unaffected (YAML and Python read both alike; day 1's stored policy has no CR). Fix: both checkouts use
+  `core.autocrlf=true`. Resume test on a copy of the Windows smoke run: "Resuming run from 1 runs. 0 runs
+  remaining.", no error and no "run config has changed" warning.
+- Linux smoke test (`configs/rq3_smoke_linux_{base,fix}.json`, train task 0 x 1 trial x 2 versions x 2
+  simulators, run before the line-ending fix; outcomes not used): 4 simulations, 0 infra errors, all
+  ended `user_stop`, 4-6 agent tool calls each, 0 tool errors, `info.git_commit` = `7aad81c` / `2fb1ca5`.
+
+Decision (the author): continue RQ3 as frozen from chunk 2 on Linux; day 1 is kept.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
@@ -438,3 +462,5 @@ the `text.json` binding hashes). RQ3 stays pinned to `2fb1ca5`, as PREREGISTRATI
 - Groq per-minute limits require `"retry_strategy": "exponential_backoff_retry"` in simulator
   `llm_args`; LiteLLM's default `constant_retry` retries instantly and kills whole tasks.
 - Groq daily quota is per model and rolling (24 h), so quota from the previous evening carries over.
+- tau2 2.0 hashes the raw bytes of language-pack and rule files and refuses to resume when they change,
+  so a checkout must keep the same line endings (`core.autocrlf`) for the whole of a run.
