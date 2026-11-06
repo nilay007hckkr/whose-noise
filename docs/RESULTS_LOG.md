@@ -499,6 +499,28 @@ first_turn_stop 1/12 in each gpt-oss cell, 0 with qwen3.8.
   the next day starts; first run at the 02:07 check on 2026-11-08 (RQ3 chunk 3). Both paths were tested
   as dry runs.
 
+## 2026-11-07: RQ3 analysis script frozen before any RQ3 outcome was analysed
+
+`scripts/analyze_rq3.py` (tag `rq3-analysis-v1`) implements PREREGISTRATION section 14 and the RQ3
+deviation rows: section 8 on the four cells, H3a, H3b, H3c, H3d (Wilson CIs), H3e
+(`variance.compare_decompositions`, fix - base) and the exploratory re-analysis without merged-turn /
+first-turn-stop simulations (2026-10-31). Tested only on synthetic results files
+(`tests/test_analyze_rq3.py`, hand-computed expectations); it has not been run on RQ3 data. The only
+RQ3 numbers seen so far are operational (infra errors, merged turns, first-turn stops); run_grid's
+summary line also printed cumulative success counts during setup, which were not used for any choice
+below. Choices that section 14 leaves open, fixed here:
+
+- H3b's interval resamples tasks once for all four cells (per-task `d_t = (q_b - g_b) - (q_f - g_f)`,
+  B = 10,000, seed 20261011), the same scheme as `metrics.paired_bootstrap_diff`.
+- Rates are task means (pass^1); with balanced cells this equals the pooled rate.
+- Exploratory re-analysis: each contrast uses the tasks that keep at least one simulation in every
+  cell it needs.
+- Hand-reading: `--export-blind-sheet` writes the flagged transcripts (strict or loose screen) in random
+  order with the version hidden, ids salted with a random value kept only in the key; labels
+  `expected_action` (yes/no) and `deciding` (yes/likely/no), as in RQ1.
+- The script refuses partial data unless `--allow-partial` is given (outcomes wait for the end), and
+  warns when an input's recorded tau2 commit does not match its version.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
