@@ -45,6 +45,30 @@ project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
 
    Add `--dry-run` first to see the plan and the budget lines.
 
+   From chunk 3 on, `scripts/rq3_day.sh` does steps 1-3 by itself: it picks the next chunk from the
+   results files, starts and stops the agent server, runs both versions in the section 14 order and
+   writes `../rq3_state/day_<date>_chunk<k>.log`. A systemd user timer starts it at minute 07 of every
+   hour; it acts only 25 h after the last attempt began (stamp `../rq3_state/last_attempt`, set to
+   day 2's start, 2026-11-07 01:02 IST) and stops once all 29 tasks are complete. It runs while the
+   user is logged in (linger is off) and blocks sleep during a run. Units, outside the repo:
+
+   ```ini
+   # ~/.config/systemd/user/rq3-day.service
+   [Service]
+   Type=oneshot
+   ExecStart=/usr/bin/systemd-inhibit --what=sleep:idle --who=whose-noise --why="RQ3 day" /home/nj/NILAY/Reaserch/whose-noise/scripts/rq3_day.sh
+   TimeoutStartSec=6h
+   # ~/.config/systemd/user/rq3-day.timer
+   [Timer]
+   OnCalendar=*-*-* *:07:00
+   Persistent=true
+   [Install]
+   WantedBy=timers.target
+   ```
+
+   Status: `systemctl --user list-timers rq3-day.timer`; stop: `systemctl --user disable --now rq3-day.timer`.
+   Test without running anything: `RQ3_DRY=1 scripts/rq3_day.sh`.
+
 3. Operational checks for the day's tasks (no outcomes printed), then read every merged-turn flag:
 
    ```bash
