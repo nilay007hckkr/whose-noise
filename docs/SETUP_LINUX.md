@@ -79,6 +79,6 @@ project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
 3. Operational checks for the day's tasks (no outcomes printed), then read every merged-turn flag:
 
    ```bash
-   uv run python scripts/rq3_daily_check.py <task ids of chunk k>
+   uv run python scripts/rq3_daily_check.py --flags <task ids of chunk k>   # flags without version
    uv run python scripts/rq2_daily_check.py <base task id>   # RQ2: per arm, plus script leakage
    ```

@@ -2,22 +2,28 @@
 first-turn stops. Deliberately prints no reward/success or premature-stop numbers
 (PREREGISTRATION section 14: outcomes are analysed at the end).
 
-Usage: uv run python scripts/rq3_daily_check.py TASK_ID [TASK_ID ...]  (from the whose-noise root)
+Usage: uv run python scripts/rq3_daily_check.py [--flags] TASK_ID [TASK_ID ...]  (whose-noise root)
+--flags also prints the merged-turn customer messages pooled over both versions in random order,
+labelled by task and simulator only, so they can be read blind to version (deviation 2026-11-07).
 Checked on 2026-11-07: tasks 5 9 reproduce the day-1 numbers in docs/RESULTS_LOG.md.
 """
 
+import random
 import sys
 from collections import Counter
 from pathlib import Path
 
-from whose_noise.fidelity import simulation_fidelity
+from whose_noise.fidelity import merged_turn_cue, simulation_fidelity
 from whose_noise.tau2_results import load_runs, read_results
 
 ROOT = Path.cwd().parent  # run from whose-noise; the tau2 checkouts are its siblings
 RUNS = ("gptoss120b_test-nonl_t3_s300_ce7e638", "qwen3.8-27b_test-nonl_t3_s300_cd30908")
 
-tasks = set(sys.argv[1:])
+args = sys.argv[1:]
+show_flags = "--flags" in args
+tasks = {a for a in args if a != "--flags"}
 assert tasks, "give task ids"
+flagged: list[str] = []
 for version in ("base", "fix"):
     for run in RUNS:
         sims_dir = ROOT / f"tau2-bench-v2-{version}" / "data" / "simulations"
@@ -36,3 +42,13 @@ for version in ("base", "fix"):
             f"commit {commit} | total in file {len(data['simulations'])}"
         )
         print("     cells:", sorted((str(s["task_id"]), s["trial"]) for s in sims))
+        for s in sims:
+            for m in s.get("messages") or []:
+                text = m.get("content") or ""
+                if m.get("role") == "user" and merged_turn_cue(text):
+                    sim_name = run.split("_")[0]
+                    flagged.append(f"task {s['task_id']}, {sim_name}: {text[:500]!r}")
+if show_flags:
+    random.shuffle(flagged)  # no version, trial or file order, so the reader stays blind
+    print(f"\nmerged-turn customer messages ({len(flagged)}), version hidden:")
+    print("\n".join(f"- {f}" for f in flagged) or "(none)")

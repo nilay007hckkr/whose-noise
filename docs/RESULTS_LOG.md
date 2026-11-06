@@ -548,6 +548,14 @@ no RQ2 data exist. Choices the pre-registration leaves open, fixed here:
   a simulation longer than 40 minutes would be cut and graded as a failure. The longest pilot simulation
   took 370 s; the report lists termination reasons per arm, so a cut would be visible.
 
+## 2026-11-07: who reads RQ3's flagged stops; daily flag reading made blind to version
+
+The author delegated the hand-reading of RQ3's flagged stops (section 14) to an LLM assistant; it reads
+the blinded sheet at the end of collection. Deviation row in PREREGISTRATION section 12 (2026-11-07), with
+the assistant's earlier exposure to version-labelled material disclosed. From day 3 on the daily check
+prints merged-turn messages pooled over both versions in random order (`rq3_daily_check.py --flags`), and
+log entries quote them without version or trial; the per-cell counts table stays.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
