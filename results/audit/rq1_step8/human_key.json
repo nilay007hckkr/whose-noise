@@ -1,0 +1,22 @@
+{
+ "H01": "gpt-oss-120b__task56__trial2",
+ "H02": "qwen3.8-27b__task64__trial2",
+ "H03": "gpt-oss-120b__task79__trial0",
+ "H04": "qwen3.8-27b__task101__trial1",
+ "H05": "gpt-oss-120b__task100__trial0",
+ "H06": "qwen3.8-27b__task55__trial1",
+ "H07": "qwen3.8-27b__task55__trial2",
+ "H08": "gpt-oss-120b__task86__trial1",
+ "H09": "gpt-oss-120b__task74__trial1",
+ "H10": "qwen3.8-27b__task51__trial1",
+ "H11": "qwen3.8-27b__task101__trial0",
+ "H12": "gpt-oss-120b__task27__trial1",
+ "H13": "gpt-oss-120b__task55__trial1",
+ "H14": "qwen3.8-27b__task33__trial2",
+ "H15": "qwen3.8-27b__task33__trial0",
+ "H16": "gpt-oss-120b__task49__trial0",
+ "H17": "gpt-oss-120b__task94__trial1",
+ "H18": "qwen3.8-27b__task94__trial0",
+ "H19": "qwen3.8-27b__task56__trial1",
+ "H20": "gpt-oss-120b__task5__trial2"
+}
