@@ -556,6 +556,30 @@ the assistant's earlier exposure to version-labelled material disclosed. From da
 prints merged-turn messages pooled over both versions in random order (`rq3_daily_check.py --flags`), and
 log entries quote them without version or trial; the per-cell counts table stays.
 
+## 2026-11-07: RQ1 step 8 rerun on all 98 failures; labels withheld until the human check
+
+The first audits (33 of RQ1's 98 failed simulations) kept their outputs but not their judge prompts, so
+step 8 was rerun on all 98 under one rebuilt protocol (deviation row in PREREGISTRATION section 12;
+frozen in `e8d98b8` before the main run). `scripts/build_step8_cases.py` builds
+`results/audit/rq1_step8/cases.json` and reproduces the first audits' 33 case records exactly, except
+that tool results are kept in full (they were cut at 1200 characters). `scripts/step8_judges.workflow.js`
+ran judge A (root-cause lens) and judge B (simulator-fidelity lens) per case, one `claude-opus-5-5` agent
+each, with a tiebreak judge on disagreement. Pilot: 2 cases outside the human sample
+(`pilot_raw.json`, not used). Main run: 204 agents (196 judges, 8 tiebreaks), no errors, 10.0M tokens,
+12 minutes; output unchanged in `judges_raw.json`; `scripts/analyze_step8.py` -> `report.md`.
+
+| | A vs B agreement (primary cause) | Cohen's kappa |
+|---|---|---|
+| all 98 | 90/98 = 0.92 [0.85, 0.96] | 0.840 |
+| gpt-oss-120b (60) | 52/60 = 0.87 [0.76, 0.93] | 0.781 |
+| qwen3.8-27b (38) | 38/38 = 1.00 [0.91, 1.00] | 1.000 |
+
+Wilson 95% intervals. A and B are the same model with different instructions, so their agreement shows
+that the labels do not hinge on the lens; it is not agreement between independent raters and says
+nothing about accuracy. That is what the human check is for: the author labels the 20 cases of
+`human_sheet.md` (seed 20261107, 10 per simulator) without seeing any judge output. Label counts, the
+comparison with the first audits and judge accuracy are withheld until then.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
