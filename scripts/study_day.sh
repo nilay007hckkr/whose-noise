@@ -13,6 +13,19 @@ R=/home/nj/NILAY/Reaserch
 WN=$R/whose-noise
 STATE=$R/rq3_state # outside the repo: lock, run stamp, one log per day
 DRY=${STUDY_DRY:-}
+# Hold a sleep inhibitor for the whole run, taken before the lock (the re-exec must not inherit
+# it). Right after a resume logind refuses inhibitors until the suspend has finished, so retry
+# for two minutes, then run without one rather than lose the day (2026-11-07 15:34).
+if [[ -z $DRY && -z ${STUDY_INHIBITED:-} ]]; then
+  for _ in {1..12}; do
+    if systemd-inhibit --what=sleep:idle --who=whose-noise --why=check true 2>/dev/null; then
+      export STUDY_INHIBITED=1
+      exec systemd-inhibit --what=sleep:idle --who=whose-noise --why="study day" "$0"
+    fi
+    sleep 10
+  done
+  echo "could not take a sleep inhibitor; running without it" >&2
+fi
 mkdir -p "$STATE"
 exec 9>"$STATE/lock"
 flock -n 9 || exit 0

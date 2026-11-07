@@ -565,3 +565,6 @@ log entries quote them without version or trial; the per-cell counts table stays
 - Groq daily quota is per model and rolling (24 h), so quota from the previous evening carries over.
 - tau2 2.0 hashes the raw bytes of language-pack and rule files and refuses to resume when they change,
   so a checkout must keep the same line endings (`core.autocrlf`) for the whole of a run.
+- Right after a resume from suspend, logind refuses sleep inhibitors for a moment; the timer's catch-up
+  run then failed at `systemd-inhibit` (2026-11-07 15:34, an idle check, no day lost). `study_day.sh` now
+  takes the inhibitor itself, retries for two minutes, and otherwise runs without it.

@@ -63,7 +63,7 @@ project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
    # ~/.config/systemd/user/study-day.service
    [Service]
    Type=oneshot
-   ExecStart=/usr/bin/systemd-inhibit --what=sleep:idle --who=whose-noise --why="study day" /home/nj/NILAY/Reaserch/whose-noise/scripts/study_day.sh
+   ExecStart=/home/nj/NILAY/Reaserch/whose-noise/scripts/study_day.sh  # takes its own sleep inhibitor
    TimeoutStartSec=8h
    # ~/.config/systemd/user/study-day.timer
    [Timer]
