@@ -550,7 +550,7 @@ no RQ2 data exist. Choices the pre-registration leaves open, fixed here:
 
 ## 2026-11-07: who reads RQ3's flagged stops; daily flag reading made blind to version
 
-The author delegated the hand-reading of RQ3's flagged stops (section 14) to an LLM assistant; it reads
+The author delegated the hand-reading of RQ3's flagged stops (section 14) to an LLM assistant (Claude Code with `claude-opus-5-5`; if the model differs when the reading is done, the one used is recorded in the RESULTS_LOG entry); it reads
 the blinded sheet at the end of collection. Deviation row in PREREGISTRATION section 12 (2026-11-07), with
 the assistant's earlier exposure to version-labelled material disclosed. From day 3 on the daily check
 prints merged-turn messages pooled over both versions in random order (`rq3_daily_check.py --flags`), and
