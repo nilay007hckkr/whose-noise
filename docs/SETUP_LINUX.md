@@ -73,7 +73,11 @@ project folder before the restore: `../_backup-20261107-pre-restore.tar.gz`.
    WantedBy=timers.target
    ```
 
-   Status: `systemctl --user list-timers study-day.timer`; stop: `systemctl --user disable --now study-day.timer`.
+   **The timer is disabled since 2026-11-09** (the author's decision: nothing runs on the laptop unless
+   asked; an automatic run on wake had loaded the GPU). Start a study day by hand with
+   `systemctl --user start study-day.service` (still 24 h after the last run, next chunk from the
+   results files). Re-enabling the timer (`systemctl --user enable --now study-day.timer`) is the
+   author's call. Stop the timer: `systemctl --user disable --now study-day.timer`.
    Test without running anything: `STUDY_DRY=1 scripts/study_day.sh`.
 
 3. Operational checks for the day's tasks (no outcomes printed), then read every merged-turn flag:
