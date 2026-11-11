@@ -580,6 +580,61 @@ nothing about accuracy. That is what the human check is for: the author labels t
 `human_sheet.md` (seed 20261107, 10 per simulator) without seeing any judge output. Label counts, the
 comparison with the first audits and judge accuracy are withheld until then.
 
+## 2026-11-08: RQ3 day 3 (chunk 3/15, tasks 18 and 26)
+
+Base first (odd `k`), 12:27-12:45 IST: 24 simulations, 0 infra errors, all ended `user_stop`. All four
+runs resumed without a "run config has changed" warning ("Resuming run from 12 runs. 6 runs
+remaining."). Only operational checks were looked at (`scripts/rq3_daily_check.py --flags 18 26`).
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 1/6 | 0/6 |
+| fix, gpt-oss-120b | 2/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+All 4 flagged messages were read blind to version (3 simulations, all task 18 with gpt-oss-120b): real
+merges, several customer turns in one message, once with the agent's line written by the customer
+("...a gray leather office chair with a fixed armrest instead. Use the same payment method.Got it. Let me
+check if that gray leather chair with a fixed armrest is in stock for you.###STOP###").
+
+## 2026-11-09 and 2026-11-11: RQ3 day 4 (chunk 4/15, tasks 27 and 32); Groq's daily limit, 3 re-runs
+
+Fix first (even `k`), 2026-11-09 21:54-22:41 IST. Fix (12 simulations) and base with gpt-oss-120b (6)
+finished with 0 infra errors. Base with qwen3.8-27b reached Groq's daily token limit for
+`qwen/qwen3.8-27b` at 22:31 ("Rate limit reached ... tokens per day (TPD): Limit 200000, Used 197965,
+Requested 2442"); tau2 tried each of the last 3 simulations 4 times and saved them as
+`infrastructure_error`. Infra errors before re-runs (section 8): base × qwen3.8-27b 3/6 (task 27
+trial 2, task 32 trials 1 and 2); every other cell 0/6; days 1-3 had none. Cause: run_grid budgets about
+10K simulator tokens per qwen3.8-27b simulation (60K per version and day); chunk 4's saved simulations
+used about 7K-25K each, about 145K over both versions. The rest of the 198K is probably the interrupted
+attempt plus other use of the Groq account in the 24 h window (not checked).
+
+Re-run (extra attempt 1 of 3, section 8), 2026-11-11 19:31-19:37 IST, started by hand at the author's
+request (the timer is off since 2026-11-09): `--auto-resume` skipped the 21 finished simulations
+("Resuming run from 21 runs. 3 runs remaining.") and all 3 completed, 0 infra errors. Nothing is dropped.
+Those 3 simulations ran two days after the rest of chunk 4, so for them section 14's same-day blocking
+does not hold; section 8 allows the re-run but does not say when. No deviation row was added (the
+author's call).
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 1/6 | 0/6 |
+| fix, gpt-oss-120b | 1/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+Both flagged messages were read blind to version (one per task, gpt-oss-120b): real merges, a customer
+turn followed by its next turn ("...when I can expect the new boots.Okay, I'll wait for the return label
+and the timeline for the exchange.###STOP###"). Days 1-4 (24 simulations per cell): merged_turns base
+7/24, fix 7/24 with gpt-oss-120b, 0/24 with qwen3.8-27b in both versions; first_turn_stop 1/24 in each
+gpt-oss cell, 0 with qwen3.8.
+
+**Blinding slip.** On 2026-11-09, while finding out why chunk 4 was incomplete, the assistant printed
+per-version user-turn and token counts for tasks 27 and 32 (qwen3.8-27b cells; no rewards or success).
+At the blind reading at the end of RQ3, flagged items from tasks 27 and 32 are marked "seen with
+version", as the 2026-11-07 deviation row requires for recognised items.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
