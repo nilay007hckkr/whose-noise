@@ -635,6 +635,31 @@ per-version user-turn and token counts for tasks 27 and 32 (qwen3.8-27b cells; n
 At the blind reading at the end of RQ3, flagged items from tasks 27 and 32 are marked "seen with
 version", as the 2026-11-07 deviation row requires for recognised items.
 
+## 2026-11-15: RQ3 day 5 (chunk 5/15, tasks 33 and 42); paused for 4.5 h mid-run
+
+Base first (odd `k`), started by hand at 11:10 IST: 24 simulations, 0 infra errors, no rate-limit
+errors, all ended `user_stop`; all four runs resumed without a "run config has changed" warning
+("Resuming run from 24 runs. 6 runs remaining."). At the author's request the run was paused at about
+11:33 by freezing the service's cgroup, during the 20th simulation (fix, qwen3.8-27b, task 42, first
+trial), and thawed at 16:04; the laptop was suspended in between (14:13). That simulation completed
+after the stall and is valid (section 3: wall-clock duration is not an outcome). The run ended at
+16:10, so the whole chunk ran on one day. Only operational checks were looked at
+(`scripts/rq3_daily_check.py --flags 33 42`).
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 0/6 | 0/6 |
+| fix, gpt-oss-120b | 1/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+The one flagged message was read blind to version (task 42, gpt-oss-120b): a real merge, with the
+agent's answer written by the customer ("...how long it'll take for the PayPal refund to show up? If
+that's all, I'm good.The refund should appear in your PayPal account within 3-5 business days. Let me
+know if there's anything else I can help with.###STOP###"). Days 1-5 (30 simulations per cell):
+merged_turns base 7/30, fix 8/30 with gpt-oss-120b, 0/30 with qwen3.8-27b in both versions;
+first_turn_stop 1/30 in each gpt-oss cell, 0 with qwen3.8.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
