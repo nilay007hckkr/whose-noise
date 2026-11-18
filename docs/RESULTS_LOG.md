@@ -660,6 +660,41 @@ know if there's anything else I can help with.###STOP###"). Days 1-5 (30 simulat
 merged_turns base 7/30, fix 8/30 with gpt-oss-120b, 0/30 with qwen3.8-27b in both versions;
 first_turn_stop 1/30 in each gpt-oss cell, 0 with qwen3.8.
 
+## 2026-11-16 and 2026-11-18: RQ3 day 6 (chunk 6/15, tasks 49 and 51); laptop shut off mid-run
+
+Fix first (even `k`), started by hand on 2026-11-16 at 17:00 IST. At 17:08 the lid was closed and at
+17:09 the laptop was unplugged. The run's sleep inhibitor kept it awake, it reached CPU 91 °C / GPU
+87 °C (17:20), and it shut off abruptly at 17:37:43 with the battery at 36%: the journal ends right after
+CPU-throttling messages, with no shutdown sequence. It is not known whether a thermal cutoff or a forced
+power-off ended it. By then fix with gpt-oss-120b had 6/6 simulations and fix with qwen3.8-27b had 4/6.
+The simulation in progress was never written: tau2 records nothing for it, so it is not an infra error.
+All four results files were intact. The chunk was restarted by hand on 2026-11-18, 10:08-10:48 IST:
+`--auto-resume` ran the 2 missing fix simulations ("Resuming run from 34 runs. 2 runs remaining.") and
+then all 12 base simulations. In total: 24 simulations, 0 infra errors, no rate-limit errors, all
+ended `user_stop`.
+
+**Same-day blocking does not hold for chunk 6.** Fix ran on 2026-11-16 (10 simulations) and
+2026-11-18 (2); base ran on 2026-11-18. So for tasks 49 and 51 a day-to-day change in the hosted
+simulators could line up with the version contrast (section 14). Discarding the 2026-11-16 simulations
+would break section 8 (no valid simulation is excluded). Listed here; whether to add a deviation row or
+an exploratory check without these tasks is the author's call. The author chose to keep the sleep
+inhibitor as it is (closing the lid does not suspend a run), so runs need the lid open and AC power.
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 3/6 | 0/6 |
+| fix, gpt-oss-120b | 0/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+All 3 flagged messages were read blind to version (all task 51, gpt-oss-120b): real merges, several
+customer turns in one message ("First name: Sofia. Last name: Li. Zip: 78260.Okay, I've given the name
+and zip. I need this return processed today. When will the refund be issued?If you need anything else
+to approve the return, tell me now..."). One ends with the customer transferring itself ("...Please put
+me through to a supervisor right now...###TRANSFER###"). Days 1-6 (36 simulations per cell):
+merged_turns base 10/36, fix 8/36 with gpt-oss-120b, 0/36 with qwen3.8-27b in both versions;
+first_turn_stop 1/36 in each gpt-oss cell, 0 with qwen3.8.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
