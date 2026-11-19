@@ -726,6 +726,27 @@ in 8484 within 3-5 business days...No, that's all. Thanks. ###STOP###"). Days 1-
 cell): merged_turns base 13/42, fix 10/42 with gpt-oss-120b, 0/42 with qwen3.8-27b in both versions;
 first_turn_stop base 2/42, fix 1/42 with gpt-oss-120b, 0 with qwen3.8.
 
+## 2026-11-19: RQ3 day 8 (chunk 8/15, tasks 56 and 61)
+
+Fix first (even `k`), 23:05-23:30 IST, started by hand right after the chunk-7 re-run. The 24 h gate
+was skipped by backdating `rq3_state/last_attempt` at the author's request. Before starting, the
+remaining Groq quota was estimated from the simulations of the last 24 h with a 1.3 margin (gpt-oss-120b
+~200K, qwen3.8-27b ~179K), against ~87K per simulator from RQ1 for these tasks. 24 simulations,
+0 infra errors, no rate-limit errors, all ended `user_stop`; all four runs resumed without a "run
+config has changed" warning.
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 0/6 | 0/6 |
+| fix, gpt-oss-120b | 1/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+The one flagged message was read blind to version (task 61, gpt-oss-120b): a real merge of two short
+turns ("Yes, go ahead with that change.Okay, thanks. Let me know once it's all set."). Days 1-8 (48
+simulations per cell): merged_turns base 13/48, fix 11/48 with gpt-oss-120b, 0/48 with qwen3.8-27b
+in both versions; first_turn_stop base 2/48, fix 1/48 with gpt-oss-120b, 0 with qwen3.8.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
