@@ -695,6 +695,37 @@ me through to a supervisor right now...###TRANSFER###"). Days 1-6 (36 simulation
 merged_turns base 10/36, fix 8/36 with gpt-oss-120b, 0/36 with qwen3.8-27b in both versions;
 first_turn_stop 1/36 in each gpt-oss cell, 0 with qwen3.8.
 
+## 2026-11-18 and 2026-11-19: RQ3 day 7 (chunk 7/15, tasks 53 and 55); Groq's daily limit, 1 re-run
+
+Base first (odd `k`), 2026-11-18 21:48-22:27 IST, started by hand. The 24 h gate was skipped by
+backdating `rq3_state/last_attempt` (the author asked for the run once the Groq quotas had refilled;
+the chunk-6 re-run had ended at 10:48). Base (12 simulations) and fix with gpt-oss-120b (6) finished
+with 0 infra errors. The last simulation of the day, fix with qwen3.8-27b, task 55 trial 2, reached
+Groq's daily token limit ("Limit 200000, Used 197760, Requested 2576") and was saved as
+`infrastructure_error`. Infra errors before re-runs (section 8): fix × qwen3.8-27b 1/6; every other
+cell 0/6. The 11 valid qwen3.8-27b simulations used about 169K simulator tokens by our count. qwen3.8
+days now come close to the 200K quota (chunk 1 ~180K, chunk 4 ~197K, chunk 7 at least 169K).
+study_day.sh was not changed.
+
+Re-run (extra attempt 1 of 3), 2026-11-19 23:00-23:02 IST, started by hand: "Resuming run from 41 runs.
+1 runs remaining."; it completed, 0 infra errors. That one simulation ran a day after the rest of
+chunk 7 (section 14's same-day blocking, as on day 4). All 24 ended `user_stop`.
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 3/6 | 1/6 |
+| fix, gpt-oss-120b | 2/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+All 6 flagged messages were read blind to version (5 simulations, all gpt-oss-120b; the glue points
+were checked too, one lies past the 500 printed characters: `out.Got`). All are real merges; in two the
+customer also wrote the agent's reply ("...process that refund right away.Sure thing, Sofia. I've
+initiated the refund for the damaged bike. The amount will be credited back to your credit card ending
+in 8484 within 3-5 business days...No, that's all. Thanks. ###STOP###"). Days 1-7 (42 simulations per
+cell): merged_turns base 13/42, fix 10/42 with gpt-oss-120b, 0/42 with qwen3.8-27b in both versions;
+first_turn_stop base 2/42, fix 1/42 with gpt-oss-120b, 0 with qwen3.8.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
