@@ -747,6 +747,25 @@ turns ("Yes, go ahead with that change.Okay, thanks. Let me know once it's all s
 simulations per cell): merged_turns base 13/48, fix 11/48 with gpt-oss-120b, 0/48 with qwen3.8-27b
 in both versions; first_turn_stop base 2/48, fix 1/48 with gpt-oss-120b, 0 with qwen3.8.
 
+## 2026-11-21: RQ3 day 9 (chunk 9/15, tasks 64 and 65)
+
+Base first (odd `k`), 21:00-23:12 IST, started by hand at the author's request after the 24 h gate had
+passed and both Groq quotas had refilled. 24 simulations, 0 infra errors, no rate-limit errors, all
+ended `user_stop`; all four runs resumed without a "run config has changed" warning.
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 0/6 | 0/6 |
+| fix, gpt-oss-120b | 2/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+Both flagged messages were read blind to version (gpt-oss-120b): real merges of two short turns,
+"Yes.Okay, sounds good. Let me know once it's all set." (task 64) and "Yes, please go ahead with the
+return.Okay, sounds good. Let me know once the return is set up.###STOP###" (task 65). Days 1-9 (54
+simulations per cell): merged_turns base 13/54, fix 13/54 with gpt-oss-120b, 0/54 with qwen3.8-27b
+in both versions; first_turn_stop base 2/54, fix 1/54 with gpt-oss-120b, 0 with qwen3.8.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
