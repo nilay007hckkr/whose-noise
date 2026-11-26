@@ -766,6 +766,38 @@ return.Okay, sounds good. Let me know once the return is set up.###STOP###" (tas
 simulations per cell): merged_turns base 13/54, fix 13/54 with gpt-oss-120b, 0/54 with qwen3.8-27b
 in both versions; first_turn_stop base 2/54, fix 1/54 with gpt-oss-120b, 0 with qwen3.8.
 
+## 2026-11-24 and 2026-11-26: RQ3 day 10 (chunk 10/15, tasks 71 and 74); Groq's daily limit, 2 re-runs
+
+Fix first (even `k`), 2026-11-24 23:14 to 2026-11-25 00:06 IST, started by hand after the 24 h gate
+had passed. Fix (12 simulations) and base with gpt-oss-120b (6) finished with 0 infra errors. In the
+last cell, base with qwen3.8-27b, Groq's daily token limit was reached at 23:59 ("Limit 200000, Used
+199437, Requested 1258"): task 71 trial 3 (three rate-limit retries, then a connection reset) and task
+74 trial 3 were saved as `infrastructure_error`. Infra errors before re-runs (section 8): base ×
+qwen3.8-27b 2/6; every other cell 0/6. study_day.sh was not changed.
+
+Re-run (extra attempt 1 of 3), 2026-11-26 12:40-13:15 IST, started by hand: "Resuming run from 58
+runs. 2 runs remaining."; both completed, 0 infra errors. Those two simulations ran two days after the
+rest of chunk 10 (section 14's same-day blocking, as on days 4 and 7). All 24 ended `user_stop`; no
+run printed a "run config has changed" warning.
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 0/6 | 0/6 |
+| fix, gpt-oss-120b | 0/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+No messages were flagged. Days 1-10 (60 simulations per cell): merged_turns base 13/60, fix 13/60 with
+gpt-oss-120b, 0/60 with qwen3.8-27b in both versions; first_turn_stop base 2/60, fix 1/60 with
+gpt-oss-120b, 0 with qwen3.8.
+
+Blinding slip: shortly after the start on 2026-11-24, Claude printed the unfiltered end of the day log
+while checking progress. tau2's progress line in it shows a running mean reward for the cell being run,
+fix × gpt-oss-120b, over its 55 simulations so far. This was one aggregate for one cell: no
+per-simulation outcome was shown, and no flagged message was linked to a version, so the blind reading
+of flagged stops is not affected. The number is not recorded here. Since then every read of a day log
+filters out lines with "reward" or "success".
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
