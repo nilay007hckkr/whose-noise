@@ -798,6 +798,26 @@ per-simulation outcome was shown, and no flagged message was linked to a version
 of flagged stops is not affected. The number is not recorded here. Since then every read of a day log
 filters out lines with "reward" or "success".
 
+## 2026-11-26: RQ3 day 11 (chunk 11/15, tasks 77 and 79)
+
+Base first (odd `k`), 14:24-15:45 IST, started by hand at the author's request right after the
+chunk-10 re-run. The 24 h gate was skipped by backdating `rq3_state/last_attempt`. Before starting,
+the remaining Groq quota was estimated from the simulations of the last 24 h with a 1.3 margin
+(gpt-oss-120b ~200K, qwen3.8-27b ~160K); the author was told qwen3.8-27b might run out. 24
+simulations, 0 infra errors, no rate-limit errors, all ended `user_stop`; all four runs resumed
+without a "run config has changed" warning.
+
+| Cell | merged_turns | first_turn_stop |
+|---|---|---|
+| base, gpt-oss-120b | 0/6 | 0/6 |
+| fix, gpt-oss-120b | 0/6 | 0/6 |
+| base, qwen3.8-27b | 0/6 | 0/6 |
+| fix, qwen3.8-27b | 0/6 | 0/6 |
+
+No messages were flagged. Days 1-11 (66 simulations per cell): merged_turns base 13/66, fix 13/66
+with gpt-oss-120b, 0/66 with qwen3.8-27b in both versions; first_turn_stop base 2/66, fix 1/66 with
+gpt-oss-120b, 0 with qwen3.8.
+
 ## Engineering notes that affect results
 
 - Tasks with NL assertions need an OpenAI judge; without a key they end in
